@@ -25,35 +25,35 @@
 /**
  * The lifecycle start event of tracer
  */
-void tracer_start(void) __attribute__ ((constructor, no_instrument_function));
+void calltracer_start(void) __attribute__ ((constructor, no_instrument_function));
 
 /**
  * The lifecycle stop event of tracer 
  */
-void tracer_stop(void) __attribute__ ((destructor, no_instrument_function));
+void calltracer_stop(void) __attribute__ ((destructor, no_instrument_function));
 
 /**
  * Function enter tracer
  */
-void __cyg_profile_func_enter(void* calller, void* callee) __attribute__((no_instrument_function));
+void __cyg_profile_func_enter(void* calllee, void* caller) __attribute__((no_instrument_function));
 
 /** 
  * Function exit tracer
  */
-void __cyg_profile_func_exit(void* calller, void* callee) __attribute__((no_instrument_function));
+void __cyg_profile_func_exit(void* calllee, void* caller) __attribute__((no_instrument_function));
 
 
 /**
  * Tracer enable 
  *
  */
-void tracer_on() __attribute__((no_instrument_function));
+void calltracer_on() __attribute__((no_instrument_function));
 
 /**
  * Tracer disable 
  *
  */
-void tracer_off() __attribute__((no_instrument_function));
+void calltracer_off() __attribute__((no_instrument_function));
 
 #endif
 

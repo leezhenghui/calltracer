@@ -16,22 +16,68 @@
  * =====================================================================================
  */
 
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/syscall.h>
+
 #include "./calltracer.h" 
 
-void tracer_start(void) {
-   printf("%s\n", __func__);
+#define CALL_STACK_TRACE_SPEC "cst"
+
+static pid_t tid, pid, ppid; 
+static gid_t gid;
+
+void calltracer_start(void) {
+	// printf("%s\n", __func__);
+	printf("             [gid]      [ppid]     [pid]     [tid]     [dir]      [caller]      [callee]\n");
 }
 
-void tracer_stop(void) {
-	printf("%s\n", __func__);
+void calltracer_stop(void) {
+	// printf("%s\n", __func__);
 }
 
-void __cyg_profile_func_enter (void *func,  void *caller)
+void __cyg_profile_func_enter (void *callee,  void *caller)
 {
-	printf(">>> [fun-enter] caller addr: %p, callee addr: %p\n", caller, func);
+	 if ((ppid = getppid()) < 0 ) {
+		 perror("Failed to getppid!");
+	 }
+
+	 if ((pid = getpid()) < 0) {
+		 perror("Failed to getpid!");
+	 }
+
+	 if ((gid = getgid()) < 0 ) {
+		 perror("Failed to getgid!");
+	 }
+
+   #ifdef SYS_gettid
+	 if ((tid = syscall(SYS_gettid)) < 0) {
+		 perror("Failed to gettid!");
+	 }
+   #endif
+	printf("[%s]:     [%d]      [%d]    [%d]    [%d]    [>]    [%p]    [%p]\n", CALL_STACK_TRACE_SPEC, gid, ppid, pid, tid, caller, callee);
 }
 
-void __cyg_profile_func_exit (void *func, void *caller)
+void __cyg_profile_func_exit (void *callee, void *caller)
 {
-	printf(">>> [fun-exit] caller addr: %p, callee addr: %p\n", caller, func);
+	 if ((ppid = getppid()) < 0 ) {
+		 perror("Failed to getppid!");
+	 }
+
+	 if ((pid = getpid()) < 0) {
+		 perror("Failed to getpid!");
+	 }
+
+	 if ((gid = getgid()) < 0 ) {
+		 perror("Failed to getgid!");
+	 }
+
+   #ifdef SYS_gettid
+	 if ((tid = syscall(SYS_gettid)) < 0) {
+		 perror("Failed to gettid!");
+	 }
+   #endif
+
+	printf("[%s]:     [%d]      [%d]    [%d]    [%d]    [<]    [%p]    [%p]\n", CALL_STACK_TRACE_SPEC, gid, ppid, pid, tid, caller, callee);
 }
