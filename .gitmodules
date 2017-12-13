@@ -1,0 +1,6 @@
+[submodule "tools/gyp"]
+	path = tools/gyp
+	url = https://chromium.googlesource.com/external/gyp
+[submodule "deps/simplelogger"]
+	path = deps/simplelogger
+	url = https://github.com/ntpeters/SimpleLogger.git
