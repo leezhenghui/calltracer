@@ -16,10 +16,13 @@
  * =====================================================================================
  */
 
+#include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/syscall.h>
+#include <string.h>
+#include <fcntl.h>
 
 #include "./calltracer.h" 
 
@@ -27,10 +30,16 @@
 
 static pid_t tid, pid, ppid; 
 static gid_t gid;
+static char logFile[255]    = "cst.log";    // Default log file name
+static int log;    
 
 void calltracer_start(void) {
-	// printf("%s\n", __func__);
-	printf("             gid        ppid     pid     tid     timestamp    dir      caller      callee\n");
+	// Open the log file
+	log = open( logFile, O_CREAT | O_APPEND | O_RDWR, 0664 );
+
+	char msg[1024];
+	sprintf(msg, "%s\n", "       gid        ppid     pid     tid     timestamp    dir      caller      callee");
+	write(log, msg, strlen(msg));
 }
 
 void calltracer_stop(void) {
@@ -56,8 +65,11 @@ void __cyg_profile_func_enter (void *callee,  void *caller)
 		 perror("Failed to gettid!");
 	 }
    #endif
+
 	unsigned int timestamp = (unsigned int) time(NULL);
-	printf("%s:        %d      %d    %d    %d    %d    >    %p    %p\n", CALL_STACK_TRACE_SPEC, gid, ppid, pid, tid, timestamp, caller, callee);
+	char msg[2048];
+	sprintf(msg, "%s:  %d      %d    %d    %d    %d    >    %p    %p\n", CALL_STACK_TRACE_SPEC, gid, ppid, pid, tid, timestamp, caller, callee);
+	write(log, msg, strlen(msg));
 }
 
 void __cyg_profile_func_exit (void *callee, void *caller)
@@ -81,5 +93,7 @@ void __cyg_profile_func_exit (void *callee, void *caller)
    #endif
 
 	unsigned int timestamp = (unsigned int) time(NULL);
-	printf("%s:        %d      %d    %d    %d    %d    <    %p    %p\n", CALL_STACK_TRACE_SPEC, gid, ppid, pid, tid, timestamp, caller, callee);
+	char msg[2048];
+	sprintf(msg, "%s:  %d      %d    %d    %d    %d    <    %p    %p\n", CALL_STACK_TRACE_SPEC, gid, ppid, pid, tid, timestamp, caller, callee);
+	write(log, msg, strlen(msg));
 }
