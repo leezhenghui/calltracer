@@ -30,7 +30,7 @@ static gid_t gid;
 
 void calltracer_start(void) {
 	// printf("%s\n", __func__);
-	printf("             gid      ppid     pid     tid     dir      caller      callee\n");
+	printf("             gid        ppid     pid     tid     timestamp    dir      caller      callee\n");
 }
 
 void calltracer_stop(void) {
@@ -56,7 +56,8 @@ void __cyg_profile_func_enter (void *callee,  void *caller)
 		 perror("Failed to gettid!");
 	 }
    #endif
-	printf("%s:     %d      %d    %d    %d    >    %p    %p\n", CALL_STACK_TRACE_SPEC, gid, ppid, pid, tid, caller, callee);
+	unsigned int timestamp = (unsigned int) time(NULL);
+	printf("%s:        %d      %d    %d    %d    %d    >    %p    %p\n", CALL_STACK_TRACE_SPEC, gid, ppid, pid, tid, timestamp, caller, callee);
 }
 
 void __cyg_profile_func_exit (void *callee, void *caller)
@@ -79,5 +80,6 @@ void __cyg_profile_func_exit (void *callee, void *caller)
 	 }
    #endif
 
-	printf("%s:     %d      %d    %d    %d    <    %p    %p\n", CALL_STACK_TRACE_SPEC, gid, ppid, pid, tid, caller, callee);
+	unsigned int timestamp = (unsigned int) time(NULL);
+	printf("%s:        %d      %d    %d    %d    %d    <    %p    %p\n", CALL_STACK_TRACE_SPEC, gid, ppid, pid, tid, timestamp, caller, callee);
 }
