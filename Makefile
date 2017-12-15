@@ -19,7 +19,8 @@ all: ./build ./calltracer ./calltracer-debug ./example ./example-debug
 	@./out/build/Release/example
 
 ./run-debug:
-	@./out/build/Debug/example
+	@CALLTRACER_ENABLE=1 ./out/build/Debug/example
 
 ./clean:
 	@rm -rf ./out
+	@rm ./cst.log
