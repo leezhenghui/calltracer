@@ -1,5 +1,9 @@
 out
 *.swp
 *.swo
-cst.log
+*.log
+**/*.png
+**/node_modules/
+package-lock.json
+out.json
 

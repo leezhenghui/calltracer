@@ -20,8 +20,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include  "./deps/simplelogger/simplog.h"
+
 void log(const char* str) {
-	printf("%s\n", str);
+	simplog.writeLog( SIMPLOG_DEBUG, str);
 	return 0;
 }
 

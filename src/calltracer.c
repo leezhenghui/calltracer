@@ -29,6 +29,12 @@
 #define DEFAULT_LOG_FILE "cst.log"
 #define FUNC_ENTRY_TAG ">"
 #define FUNC_EXIT_TAG "<"
+#define MEM_MAPS_FILE_PATTERN "/proc/%d/maps"
+#define FUNC_TRACE_BEGIN_PATTERN "***      Begin(pid: %d)      ***\n\n"
+#define FUNC_TRACE_END_PATTERN   "\n***       END(pid: %d)       ***\n"
+#define MEM_LAYOUT_SECTION_SEPARATOR "=== MEMORY LAYOUT ==="
+#define FUNC_TRACE_SECTION_SEPARATOR "=== FUNC TRACE ==="
+#define FUNC_TRACE_HEADER "   timestamp    gid       ppid     pid      tid     dir      caller      callee"
 
 static pid_t tid, pid, ppid; 
 static gid_t gid;
@@ -38,18 +44,53 @@ static int log;
 static unsigned int isTracerEnabled = 0;
 static unsigned int isHeaderPrinted = 0;
 
+__attribute__((no_instrument_function))
 static void print_header(void) {
-	if (isHeaderPrinted) return;
 	char msg[1024];
-	sprintf(msg, "%s\n", "   gid       ppid     pid      tid     timestamp    dir      caller      callee");
+	sprintf(msg, FUNC_TRACE_BEGIN_PATTERN, pid);
 	write(log, msg, strlen(msg));
-	isHeaderPrinted = 1;
 }
 
+__attribute__((no_instrument_function))
+static void print_footer(void) {
+	char msg[1024];
+	sprintf(msg, FUNC_TRACE_END_PATTERN, pid);
+	write(log, msg, strlen(msg));
+}
+
+__attribute__((no_instrument_function))
+static void mem_layout() {
+	
+	char buffer[2046];
+	sprintf(buffer, "%s\n\n", MEM_LAYOUT_SECTION_SEPARATOR);
+	write(log, buffer, strlen(buffer));
+	
+	char fmap[1024];
+	sprintf(fmap, MEM_MAPS_FILE_PATTERN, pid);
+	FILE *fp = fopen(fmap, "r");
+	fseek(fp, 0, SEEK_SET);
+	while (! feof(fp)) {
+		fread(buffer, sizeof(buffer), 1, fp);
+		write(log, buffer, strlen(buffer));
+	}
+	write(log, "\n\n", strlen("\n\n"));
+	fclose(fp);
+}
+
+__attribute__((no_instrument_function))
 static void func_trace(const void *callee, const void *caller, const unsigned int isEntry) {
 
 	if (! isTracerEnabled) {
     return;	
+	}
+
+	char msg[2048];
+	if (! isHeaderPrinted) {
+		sprintf(msg, "%s\n\n", FUNC_TRACE_SECTION_SEPARATOR);
+		write(log, msg, strlen(msg));
+		sprintf(msg, "%s\n\n", FUNC_TRACE_HEADER);
+		write(log, msg, strlen(msg));
+		isHeaderPrinted = 1;
 	}
 
 #ifdef SYS_gettid
@@ -58,7 +99,6 @@ static void func_trace(const void *callee, const void *caller, const unsigned in
 	}
 #endif
 	unsigned int timestamp = (unsigned int) time(NULL);
-	char msg[2048];
 
 	char* call_dirction_tag;
 	if (isEntry) {
@@ -66,9 +106,11 @@ static void func_trace(const void *callee, const void *caller, const unsigned in
 	} else {
     call_dirction_tag = FUNC_EXIT_TAG;	
 	}
-	sprintf(msg, "  %d      %d    %d    %d    %d    %s    %p    %p\n", gid, ppid, pid, tid, timestamp, call_dirction_tag, caller, callee);
+	sprintf(msg, "  %d      %d    %d    %d    %d    %s    %p    %p\n", timestamp, gid, ppid, pid, tid, call_dirction_tag, caller, callee);
 	write(log, msg, strlen(msg));
 }
+
+
 
 void calltracer_start(void) {
 	char *is_tracer_enabled_env;
@@ -94,12 +136,12 @@ void calltracer_start(void) {
 		perror("Failed to getgid!");
 	}
 
-	if (! isHeaderPrinted) {
-		print_header();	
-	}
+	print_header();	
+	mem_layout();
 }
 
 void calltracer_stop(void) {
+	print_footer();
 	if (log) {
     close(log);	
 	}

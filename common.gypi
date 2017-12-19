@@ -24,7 +24,7 @@
     ],
     'configurations': {
       'Debug': {
-        'cflags': [ '-g', '-O0' ],
+        'cflags': [ '-g', '-O0', '-fno-omit-frame-pointer'],
         'defines': [ 'DEBUG' ],
         'xcode_settings': {
           'OTHER_CFLAGS': [ '-g', '-O0' ]

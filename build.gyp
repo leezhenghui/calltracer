@@ -13,7 +13,8 @@
 					"include"
 				],
 				'dependencies': [
-					'calltracer'
+					'calltracer',
+				   './examples/deps/simplelogger.gyp:simplelogger',
 				],
 				'configurations': {
 					'Debug': {
