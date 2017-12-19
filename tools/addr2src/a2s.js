@@ -29,6 +29,19 @@ const DIAG_LINE_ERROR_COLOR = 'red';
 
 let   colorCursor = 0;
 
+let getDiffColor = function getDiffColor(previousColor) {
+
+	let nextColor = (colorCursor + 1) % DIAG_LINE_COLORS.length;
+
+	if (previousColor && DIAG_LINE_COLORS[nextColor] === previousColor) {
+		return DIAG_LINE_COLORS[colorCursor];
+	}
+
+	colorCursor = nextColor;
+
+	return DIAG_LINE_COLORS[colorCursor];
+}
+
 //==========================================================
 //  Class Definitions
 //==========================================================
@@ -267,6 +280,7 @@ class Port {
 		return {
 			funcName: self.funcName,
 			srcLoc: self.srcLoc,
+			srcBasename: path.basename(self.srcLoc),
 			execPoint: self.execPoint,
 			addr: self.getVMAInHex(),
 			image: self.image
@@ -350,9 +364,9 @@ class Interaction {
 			} else if (inter.isResponse()) {
 				inter.setColor(DIAG_LINE_ERROR_COLOR);
 			} else {
-				let nextColor = colorCursor % DIAG_LINE_COLORS.length;
-		    inter.setColor(DIAG_LINE_COLORS[nextColor]);	
-				colorCursor ++;
+				let latestInter = opts.processor.getCurrentPart().getLatestInteraction();
+				let preColor = latestInter && latestInter.getColor();
+		    inter.setColor(getDiffColor(preColor));	
 			}
 			opts.processor.getCurrentPart().pushInteraction(inter);
 			debug('Line-' + line.getPosition() + '(' + path.basename(line.getLogFile()) + ') is ' + colors.green.bold('parsed') + ': "' + line.getContent() + '" ==> Interaction: ' + JSON.stringify(inter.toJSON()));
@@ -772,6 +786,16 @@ class Part {
 	    self.interactions.push(inter);	
 		}
 	
+	}
+
+	getLatestInteraction() {
+    let self = this;
+		let len = self.interactions.length;
+		if (len  === 0) {
+	    return;	
+		}
+
+		return self.interactions[len -1];
 	}
 
 	toJSON() {
