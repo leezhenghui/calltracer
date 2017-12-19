@@ -59,7 +59,7 @@ class CMDExecutor {
 			let fault = '';
 
 			runner.on('close', function() {
-			  debug('Run cmd "' + self.cmd + '" with params: ', params, ' and result: ', reval);
+			  // debug('Run cmd "' + self.cmd + '" with params: ', params, ' and result: ', reval);
 				defer.resolve(reval);
 			});
 			
@@ -149,8 +149,8 @@ class Port {
 		return offset.toString(DEFAULT_NUMBER_RADIX);
 	}
 
-	static get ADDR_TO_LINE_PATTER() {	
-		return /^\s*(\S+)\s+(?:at)*\s*(\S+):([0-9\?]+)\s*$/g;
+	static get ADDR_TO_LINE_PATTERN() {	
+		return /^\s*(\S+)\s+(?:at)*\s*(\S+):([0-9\?]+)[\s+\S*|\s*]*$/g;
 	}
 
 	/**
@@ -189,9 +189,9 @@ class Port {
 		let params = ['-fp', '-e', opts.image.getFullPath(), fixedAddr];
 
 		return addr2line.exec(params).then(function(output) {
-			debug('Run addr2line command with params: ', params, ' and output: ', output);
+			debug('Run addr2line command,  params:\n', params, '\n output:\n', '"' + output + '"');
 
-			if (! Port.ADDR_TO_LINE_PATTER.test(output)) {
+			if (! Port.ADDR_TO_LINE_PATTERN.test(output)) {
 				console.error('Unrecognized addr2line command output: ', output);
 				throw {
 					errorCode: 'E_ADDR2LINE_220',
@@ -199,7 +199,7 @@ class Port {
 				};
 			}
 
-			let parsedOutput = Port.ADDR_TO_LINE_PATTER.exec(output);
+			let parsedOutput = Port.ADDR_TO_LINE_PATTERN.exec(output);
 
 			let funcName = parsedOutput[1];
 			let srcLoc = parsedOutput[2];
