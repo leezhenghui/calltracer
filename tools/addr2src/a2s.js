@@ -184,6 +184,12 @@ class Port {
 	 * @return promise
 	 */
 	static parse(addr, opts, callback) {
+
+		let portInCache = opts.image.getPort(addr);
+		if (portInCache) {
+	    return Q(portInCache).nodeify(callback);	
+		}
+
 		let addr2line = new CMDExecutor(ADDR2LINE_CMD);
 		let fixedAddr = Port.getOffsetInDL(addr, opts.image) || addr;
 		let params = ['-fp', '-e', opts.image.getFullPath(), fixedAddr];
@@ -200,13 +206,10 @@ class Port {
 			}
 
 			let parsedOutput = Port.ADDR_TO_LINE_PATTERN.exec(output);
-
 			let funcName = parsedOutput[1];
 			let srcLoc = parsedOutput[2];
 			let execPoint = parsedOutput[3];
-
 			let reval = new Port(funcName, srcLoc, execPoint, addr, opts.image);
-
 			return reval;
 		}).nodeify(callback);
 	}
@@ -468,6 +471,10 @@ class Image {
 		if ('string' === typeof this.vmaEnd) {
 	    this.vmaEnd = parseInt(this.vmaEnd, DEFAULT_NUMBER_RADIX);	
 		}
+
+		// a cache to store the port owned by image,
+		// key: value, key = addr
+		this.ports = {};
 	}
 
 	static get QNAME() {
@@ -638,6 +645,31 @@ class Image {
 		}
 
 		return true;
+	}
+
+	setPort(addr, port) {
+		if (! addr || ! port) return;
+
+		let self = this;
+		let key = addr;
+    if ('number' === typeof key) {
+			key = new Number(key);
+			key = key.toString(DEFAULT_NUMBER_RADIX);
+		}	
+		self.ports[key] = port;
+	}
+
+	getPort(addr) {
+		if (! addr) return;
+
+		let self = this;
+		let key = addr;
+    if ('number' === typeof key) {
+			key = new Number(key);
+			key = key.toString(DEFAULT_NUMBER_RADIX);
+		}	
+
+		return self.ports[key];
 	}
 
 	toJSON() {
