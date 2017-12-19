@@ -210,6 +210,7 @@ class Port {
 			let srcLoc = parsedOutput[2];
 			let execPoint = parsedOutput[3];
 			let reval = new Port(funcName, srcLoc, execPoint, addr, opts.image);
+			opts.image.setPort(addr, reval);
 			return reval;
 		}).nodeify(callback);
 	}
