@@ -20,11 +20,11 @@ seqdiag {
 	  === PID-{{&pid}} [{{&startTime}}-{{&endTime}}]  ===
 		{{#interactions}}
 		   {{#isReq}} 
-			   "{{&sImg}}:{{&sCode}}" -> "{{&tImg}}:{{tCode}}" [leftnote = "{{&sFunc}}()<{{&sLine}}>",  label = "call: {{&tFunc}}()<{{&tLine}}>; time={{&timestamp}}", color = {{&color}}];
+			   "{{&sImg}}:{{&sCode}}" -> "{{&tImg}}:{{tCode}}" [leftnote = "{{&sFunc}}()<{{&sCode}}:{{&sLine}}>",  label = "Call: {{&tFunc}}()<{{&tCode}}:{{&tLine}}>; time={{&timestamp}}", color = {{&color}}];
 		   {{/isReq}} 
 
 			 {{^isReq}}
-			   "{{&sImg}}:{{&sCode}}" <-- "{{&tImg}}:{{tCode}}" [rightnote = "{{&tFunc}}()<{{&tLine}}>",  label = "return: {{&sFunc}}()<{{&sLine}}>; time={{&timestamp}}", color = {{&color}}];
+			   "{{&sImg}}:{{&sCode}}" <-- "{{&tImg}}:{{tCode}}" [rightnote = "{{&tFunc}}()<{{&tCode}}:{{&tLine}}>",  label = "Return: {{&sFunc}}()<{{&sCode}}:{{&sLine}}>; time={{&timestamp}}", color = {{&color}}];
 		   {{/isReq}} 
 		{{/interactions}}
 	 {{/parts}}
