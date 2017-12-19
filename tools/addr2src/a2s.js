@@ -14,6 +14,7 @@ const colors        = require('colors');
 const debug         = require('debug')('a2s');
 const child_process = require('child_process');
 const readline      = require('readline');
+const Mustache      = require('mustache');
 
 //=========================================================
 //     Global Variables
@@ -26,6 +27,9 @@ const DEFAULT_NUMBER_RADIX = 16;
 
 const DIAG_LINE_COLORS = ['blue', 'green', 'orange'];
 const DIAG_LINE_ERROR_COLOR = 'red';
+
+const TEMPLATE_PATH = path.join(__dirname, 'templates/seqdiag.mustache');
+const OUT_FILE = path.join(process.cwd(), 'out.seqdiag');
 
 let   colorCursor = 0;
 
@@ -275,6 +279,18 @@ class Port {
 		return Port.getOffsetInDL(self.addr, port.image);
 	}
 
+	getShortSrcLoc() {
+		let self = this;
+    return path.basename(self.srcLoc);	
+	}
+	getFuncName() {
+    return this.funcName;	
+	}
+	
+	getExecPoint() {
+    return this.execPoint;	
+	}
+
 	toJSON() {
 		let self = this;
 		return {
@@ -350,7 +366,7 @@ class Interaction {
 			});
 		}).then(function() {
 			//use colorful interaction to pair the req/resp
-			let inter = new InteractionDiag(srcPort, targetPort, type, timestamp, pid, tid);
+			let inter = new InteractionX(srcPort, targetPort, type, timestamp, pid, tid);
 			let pairedInter = null;
 			opts.processor.getCurrentPart().interactions.some(function(_inter) {
 				if (_inter.isPaired(inter)) {
@@ -551,7 +567,7 @@ class Image {
 			endVMA = parsedReval[2];
 			imgPath = parsedReval[3];
 
-			let image = new Image(imgPath, startVMA, endVMA);
+			let image = new ImageX(imgPath, startVMA, endVMA);
 			opts.processor.getCurrentPart().pushImage(image);
 			debug('Line-' + line.getPosition() + '(' + path.basename(line.getLogFile()) + ') is ' + colors.green.bold('parsed') + ': "' + line.getContent() + '" ==> Image: ' + JSON.stringify(image.toJSON()));
 			return image;
@@ -725,7 +741,7 @@ class Part {
 		return Q().then(function() {
 			let parsedReval = Part.PATTERN.exec(line.getContent());
 			let pid = parsedReval[1];
-			let part = new Part(pid);
+			let part = new PartX(pid);
 			opts.processor.pushPart(part);
 			debug('Line-' + line.getPosition() + '(' + path.basename(line.getLogFile()) + ') is ' + colors.green.bold('parsed') + ': "' + line.getContent() + '" ==> Part: ' + JSON.stringify(part.toJSON()));
 			return part;
@@ -800,15 +816,24 @@ class Part {
 
 	toJSON() {
 		let self = this;
+		let images = [];
+		self.images.forEach(function(image) {
+	    images.push(image.toJSON());	
+		});
+
+		let interactions = [];
+		self.interactions.forEach(function(inter) {
+	    interactions.push(inter.toJSON());	
+		});
 		return {
 	    pid: self.pid,
-			images: self.images,
-			interactions: self.interactions
+			images: images,
+			interactions: interactions
 		};
 	}
 }
 
-class InteractionDiag extends Interaction {
+class InteractionX extends Interaction {
 	constructor(src, tar, type, timestamp, pid, tid, color) {
 		super(src, tar, type, timestamp, pid, tid);
 		this.color = color || 'blue';
@@ -822,9 +847,81 @@ class InteractionDiag extends Interaction {
 		return this.color;
 	}
 
-	toJSON() {
+	/**
+	 *
+	 *     {
+	 *       sImg: <String>,
+	 *       sCode: <String>,
+	 *       sFunc: <String>,
+	 *       sLine: <Number>,
+	 *       sVMA: <String>,
+	 *       tImg: <String>,
+	 *       tCode: <String>,
+	 *       tFunc: <String>,
+	 *       tLine: <String>,
+	 *       tVMA: <String>,
+	 *       timestamp: <String>,
+	 *       isReq: <Boolean>,
+	 *       color: <String>
+	 *     }
+	 */
+	toJSONX() {
+		let json = {};
+		let self = this;
+		json.color = self.color; 
+		json.sImg = self.getSource().image.getBasename();
+		json.sCode = self.getSource().getShortSrcLoc();
+		json.sFunc = self.getSource().getFuncName();
+		json.sLine = self.getSource().getExecPoint();
+		json.sVMA = self.getSource().getVMAInHex();
+		json.tImg = self.getTarget().image.getBasename();
+		json.tCode = self.getTarget().getShortSrcLoc();
+		json.tFunc = self.getTarget().getFuncName();
+		json.tLine = self.getTarget().getExecPoint();
+		json.tVMA = self.getTarget().getVMAInHex();
+		json.isReq = self.isRequest() ? true : false;
+		json.timestamp = self.getTimestamp();
+
+		return json;
+	}
+}
+
+class PartX extends Part {
+	constructor(pid) {
+    super(pid);	
+	}
+
+	toJSONX() {
+		let self = this;
+		let images = [];
+		self.images.forEach(function(image) {
+	    images.push(image.toJSONX());	
+		});
+
+		let interactions = [];
+		self.interactions.forEach(function(inter) {
+	    interactions.push(inter.toJSONX());	
+		});
+
+		let startTime = self.interactions[0].getTimestamp();
+		let endTime = self.interactions[self.interactions.length - 1].getTimestamp();
+		return {
+	    pid: self.pid,
+			startTime: startTime,
+			endTime: endTime,
+			images: images,
+			interactions: interactions
+		};
+	}
+}
+
+class ImageX extends Image {
+	constructor(path, vmaStart, vmaEnd) {
+    super(path, vmaStart, vmaEnd);	
+	}
+	
+	toJSONX() {
 		let json = super.toJSON();
-		json.color = this.color;
 		return json;
 	}
 }
@@ -898,10 +995,25 @@ class LineProcessor{
 
 	aggregate() {
 		let self = this;
+		let parts = [];
+		self.parts.forEach(function(part) {
+	    parts.push(part.toJSON());	
+		});
 		return {
-	    parts: self.parts
+	    parts: parts
 		};
 	}
+
+  aggregateX() {
+		let self = this;
+		let parts = [];
+		self.parts.forEach(function(part) {
+	    parts.push(part.toJSONX());	
+		});
+		return {
+	    parts: parts
+		};
+	} 
 
 	ignoredLines() {
 		return this.ignored;
@@ -1291,6 +1403,9 @@ logs.forEach(function(log) {
 });
 
 tm.processAsync(context, function(error, result) {
-	console.log('parsed lines: ' + JSON.stringify(lp.aggregate()));
-	fs.writeFileSync('out.json', JSON.stringify(lp.aggregate()), 'utf8');
+	fs.writeFileSync('out.json', JSON.stringify(lp.aggregateX()), 'utf8');
+  let tempalte = fs.readFileSync(TEMPLATE_PATH, 'utf8');	
+	let reval = Mustache.render(tempalte, lp.aggregateX());
+	fs.writeFileSync(OUT_FILE, reval, 'utf8');
 });
+

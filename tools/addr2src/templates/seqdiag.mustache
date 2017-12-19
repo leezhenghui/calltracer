@@ -16,16 +16,16 @@ seqdiag {
 	// Change note color
 	default_note_color = lightblue;
 
-   === Thread-<NUM-1> ===
+   {{#parts}}
+	  === PID-{{&pid}} [{{&startTime}}-{{&endTime}}]  ===
+		{{#interactions}}
+		   {{#isReq}} 
+			   "{{&sImg}}:{{&sCode}}" -> "{{&tImg}}:{{tCode}}" [leftnote = "{{&sFunc}}()<{{&sLine}}>",  label = "call: {{&tFunc}}()<{{&tLine}}>; time={{&timestamp}}", color = {{&color}}];
+		   {{/isReq}} 
 
-	caller-src -> callee-src [leftnote = "caller func-name(@line)",  label = "call: callee func-name(@line); <timestamp>", color = red];
-
-
-   === Thread-<NUM-2> ===
-	
-	caller-src -> callee-src [leftnote = "caller func-name(@line)",  label = "call: callee func-name(@line); <timestamp>", color = blue];
-
-    ... Separator line ...
-
-	caller-src <-- callee-src [rightnote = "callee func-name(@line)",  label = "return: caller func-name(@line); <timestamp>", color = blue];
+			 {{^isReq}}
+			   "{{&sImg}}:{{&sCode}}" <-- "{{&tImg}}:{{tCode}}" [rightnote = "{{&tFunc}}()<{{&tLine}}>",  label = "return: {{&sFunc}}()<{{&sLine}}>; time={{&timestamp}}", color = {{&color}}];
+		   {{/isReq}} 
+		{{/interactions}}
+	 {{/parts}}
 }
