@@ -116,6 +116,8 @@ class Line {
 		this.position = position;
 		this.rawContent = rawContent;
 		this.logFile = logFile;
+		this.parser = null;
+		this.isParserResolved = false;
 	}
 
 	getPosition() {
@@ -128,6 +130,15 @@ class Line {
 
 	getContent() {
     return this.rawContent;	
+	}
+
+	getParser(){
+		const self = this;
+		if (! self.isParserResolved) {
+			self.parser = LineProcessor.resolveParser(self); 
+			self.isParserResolved = true;
+		}
+    return self.parser;	
 	}
 }
 
@@ -906,10 +917,11 @@ class PartX extends Part {
 	    interactions.push(inter.toJSONX());	
 		});
 
-		let startTime = self.interactions[0].getTimestamp();
-		startTime = new Date(parseInt(startTime));
-		let endTime = self.interactions[self.interactions.length - 1].getTimestamp();
-		endTime = new Date(parseInt(endTime));
+
+		let startTime = self.interactions[0] && self.interactions[0].getTimestamp();
+		startTime = startTime && new Date(parseInt(startTime));
+		let endTime = self.interactions[0] && self.interactions[self.interactions.length - 1].getTimestamp();
+		endTime = endTime && new Date(parseInt(endTime));
 		return {
 	    pid: self.pid,
 			startTime: startTime,
@@ -960,7 +972,8 @@ class LineProcessor{
 
 	parse(line, callback) {
 		let self = this;
-		let parser = LineProcessor.resolveParser(line);
+		let parser = line.getParser();
+
 		try {
 
 			if (! parser) {
@@ -1319,8 +1332,11 @@ class SequencingLogFileParseTask extends BaseTask {
 	}
 
   doAsync(done) {
-		let self = this;
-		let processor = self.context.processor;
+		const self = this;
+		const processor = self.context.processor;
+
+		let status = self.context.status;
+		let conf = self.context.conf;
 
 		let slpTaskMgrt = new TasksMgrt(); 
 		let subCtx = {processor: processor};
@@ -1334,6 +1350,21 @@ class SequencingLogFileParseTask extends BaseTask {
 		rl.on('line', function(l){
 			position ++;
 			let line = new Line(position, self.logFile, l);
+
+			if (line.getParser() && line.getParser().QNAME === 'InteractionParser') {
+		    status.readInteraction ++;	
+				if (conf.skip > 0 && status.readInteraction <= conf.skip) {
+					debug('Line-' + line.getPosition() + '(' + path.basename(line.getLogFile()) + ') is ' + colors.blue.bold('skipped') + ': "' + line.getContent() + '", since skip conf: ' + conf.skip + ', current course position: '+ status.readInteraction);
+					return;
+				}
+
+				if (conf.limit !== 'unlimited' && status.parsedInteraction >= conf.limit) {
+					debug('Line-' + line.getPosition() + '(' + path.basename(line.getLogFile()) + ') is ' + colors.blue.bold('skipped') + ': "' + line.getContent() + '", since limit conf: ' + conf.limit + ', current parsed count: ' + status.parsedInteraction);
+					return;
+				}
+				debug('Line-' + line.getPosition() + '(' + path.basename(line.getLogFile()) + ') is ' + colors.blue.bold('enqueued') + ': "' + line.getContent());
+				status.parsedInteraction ++;
+			}
 
 			let seqLPT = new SequencingLineParseTask(subCtx, line);
 			slpTaskMgrt.addTask(seqLPT);
@@ -1455,7 +1486,8 @@ const lp =  new LineProcessor();
 context.processor = lp;
 context.conf = conf;
 context.status = {
-  readInteraction: 0
+  readInteraction: 0,
+	parsedInteraction: 0
 };
 
 logs.forEach(function(log) {
