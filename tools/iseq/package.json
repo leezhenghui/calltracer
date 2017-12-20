@@ -1,8 +1,8 @@
 {
-  "name": "addr2src",
+  "name": "iseq",
   "version": "1.0.0",
-  "description": "The utility to translate the call stack from memory address to function name as well as source code line",
-  "main": "a2s.js",
+  "description": "The utility to translate the call stack from VMA to corresponding function name, source code line and generate a invocation sequencing diagram",
+  "main": "iseq",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -12,7 +12,7 @@
     "colors": "1.1.2",
     "commander": "2.12.2",
     "debug": "3.1.0",
-    "mustache": "^2.3.0",
+    "mustache": "2.3.0",
     "q": "1.5.1"
   }
 }

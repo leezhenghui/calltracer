@@ -29,9 +29,15 @@ const DIAG_LINE_COLORS = ['blue', 'green', 'orange'];
 const DIAG_LINE_ERROR_COLOR = 'red';
 
 const TEMPLATE_PATH = path.join(__dirname, 'templates/seqdiag.mustache');
-const OUT_FILE = path.join(process.cwd(), 'out.seqdiag');
+const OUT_SEQ_DESC_FILE = 'seqdiag.desc';
+const OUT_SEQ_PNG_FILE = 'seqdiag.png';
+const OUT_SEQ_JSON_FILE = 'seqdiag.json';
 
-let   colorCursor = 0;
+//==========================================================
+//  Class/Utility Definitions
+//==========================================================
+
+let colorCursor = 0;
 
 let getDiffColor = function getDiffColor(previousColor) {
 
@@ -45,10 +51,6 @@ let getDiffColor = function getDiffColor(previousColor) {
 
 	return DIAG_LINE_COLORS[colorCursor];
 }
-
-//==========================================================
-//  Class Definitions
-//==========================================================
 
 class CMDExecutor {
 	constructor(cmd) {
@@ -880,7 +882,8 @@ class InteractionX extends Interaction {
 		json.tLine = self.getTarget().getExecPoint();
 		json.tVMA = self.getTarget().getVMAInHex();
 		json.isReq = self.isRequest() ? true : false;
-		json.timestamp = self.getTimestamp();
+		let timestamp = new Date(parseInt(self.getTimestamp()));
+		json.timestamp = timestamp;
 
 		return json;
 	}
@@ -904,7 +907,9 @@ class PartX extends Part {
 		});
 
 		let startTime = self.interactions[0].getTimestamp();
+		startTime = new Date(parseInt(startTime));
 		let endTime = self.interactions[self.interactions.length - 1].getTimestamp();
+		endTime = new Date(parseInt(endTime));
 		return {
 	    pid: self.pid,
 			startTime: startTime,
@@ -1356,6 +1361,9 @@ const logs = [];
 program
 	.version('1.0.0')
 	.usage('[options] <logfile> ...')
+	.option('-o, --outdir [outdir]', 'Output directory, default to current working directory')
+	.option('-l, --limit [limit]', 'Limit count of the interactions, default is unlimited')
+	.option('-s, --skip [skip]', 'Skip parsing of the interactions with specified count, default is 0')
 	.parse(process.argv);
 
 if (! program.args || program.args.length === 0) {
@@ -1365,16 +1373,9 @@ if (! program.args || program.args.length === 0) {
 }
 
 program.args.forEach(function (logFile) {
-	if (path.isAbsolute(logFile)) {
-		if (! fs.existsSync(logFile)) {
-			console.error(colors.red('[Error]: ') + 'log file does not exist - "' + logFile + '"');	
-			program.outputHelp();
-			process.exit(1);
-		}
-		logs.push(logFile);
-		return;	
+	if (! path.isAbsolute(logFile)) {
+		logFile = path.resolve(process.cwd(), logFile);
 	}
-	logFile = path.resolve(process.cwd(), logFile);
 	logs.push(logFile);
 	if (! fs.existsSync(logFile)) {
 		console.error(colors.red('[Error]: ') + 'log file does not exist - "' + logFile + '"');	
@@ -1383,19 +1384,42 @@ program.args.forEach(function (logFile) {
 	}
 });
 
+let conf = {
+	'outdir': (program.outdir ? program.outdir : process.cwd()),
+	'limit': (program.limit ? parseInt(program.limit) : 'unlimited'),
+	'skip': (program.skip? parseInt(program.skip) : 0),
+};
+
+if (! path.isAbsolute(conf.outdir)) {
+	conf.outdir = path.resolve(process.cwd(), conf.outdir);
+}
+
+if (! fs.existsSync(conf.outdir)) {
+	console.error(colors.red('[Error]: ') + 'out directory does not exist - "' + conf.outdir + '"');	
+	program.outputHelp();
+	process.exit(1);
+}
+
 console.log('\n*******************************************************');
 
 logs.forEach(function(logfile) {
 	console.log('==>  LOG FILE: "' + logfile + '"');
+	console.log('==>  OUT DIR: "' + conf.outdir+ '"');
+	console.log('==>  LIMIT: "' + conf.limit+ '"');
+	console.log('==>  SKIP: ' + conf.skip);
 });
 
 console.log('*******************************************************\n\n');
 
-
 const context = {};
 const tm = new TasksMgrt();
 const lp =  new LineProcessor();
+
 context.processor = lp;
+context.conf = conf;
+context.status = {
+  readInteraction: 0
+};
 
 logs.forEach(function(log) {
 	let seqLogfilePT = new SequencingLogFileParseTask(context, log);
@@ -1403,9 +1427,9 @@ logs.forEach(function(log) {
 });
 
 tm.processAsync(context, function(error, result) {
-	fs.writeFileSync('out.json', JSON.stringify(lp.aggregateX()), 'utf8');
+	fs.writeFileSync(path.join(conf.outdir, OUT_SEQ_JSON_FILE), JSON.stringify(lp.aggregateX()), 'utf8');
   let tempalte = fs.readFileSync(TEMPLATE_PATH, 'utf8');	
 	let reval = Mustache.render(tempalte, lp.aggregateX());
-	fs.writeFileSync(OUT_FILE, reval, 'utf8');
+	fs.writeFileSync(path.join(conf.outdir, OUT_SEQ_DESC_FILE), reval, 'utf8');
 });
 

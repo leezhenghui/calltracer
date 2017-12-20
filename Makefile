@@ -20,14 +20,10 @@ all: ./build ./calltracer ./calltracer-debug ./example ./example-debug
 
 ./run-debug:
 	@CALLTRACER_ENABLE=1 ./out/build/Debug/example
-	@DEBUG=* ./tools/addr2src/a2s.js ./cst.log > ./a2s.log 2> ./a2s.log
-	@seqdiag --no-transparency  ./out.seqdiag
+	@DEBUG=* ./tools/iseq/iseq -o ./out ./cst.log > ./out/iseq.log 2> ./out/iseq.log
+	@seqdiag --no-transparency  ./out/seqdiag.desc
 
 ./clean:
 	@rm -rf ./out
 	@rm ./cst.log
-	@rm ./out.png
-	@rm ./out.json
-	@rm ./out.seqdiag
 	@rm ./default.log
-	@rm ./a2s.log
