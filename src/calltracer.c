@@ -62,7 +62,7 @@ __attribute__((no_instrument_function))
 static void mem_layout() {
 	
 	char buffer[2046];
-	sprintf(buffer, "%s\n\n", MEM_LAYOUT_SECTION_SEPARATOR);
+	sprintf(buffer, "\n%s\n\n", MEM_LAYOUT_SECTION_SEPARATOR);
 	write(log, buffer, strlen(buffer));
 	
 	char fmap[1024];
@@ -141,6 +141,10 @@ void calltracer_start(void) {
 }
 
 void calltracer_stop(void) {
+  // mem_layout in stop phase, as
+	// the shared lib may being loaded during execution time via
+	// dlopen way
+	mem_layout();
 	print_footer();
 	if (log) {
     close(log);	

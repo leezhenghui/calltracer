@@ -43,6 +43,7 @@ const TEMPLATE_PATH = path.join(__dirname, 'templates/seqdiag.mustache');
 const OUT_SEQ_DESC_FILE = 'seqdiag.desc';
 const OUT_SEQ_PNG_FILE = 'seqdiag.png';
 const OUT_SEQ_JSON_FILE = 'seqdiag.json';
+const DEFAULT_JOB_PRIORITY = 300;
 
 //==========================================================
 //  Class/Utility Definitions
@@ -174,6 +175,10 @@ class Port {
 	
 	static get QNAME() {
 		return 'PortParser';
+	}
+
+	static get Priority() {
+    return 300;	
 	}
 	
 	static getOffsetInDL(addr, image) {
@@ -341,6 +346,10 @@ class Interaction {
 	
 	static get QNAME() {
 		return 'InteractionParser';
+	}
+	
+	static get Priority() {
+		return 300;
 	}
 
 	/**
@@ -534,6 +543,10 @@ class Image {
 
 	static get QNAME() {
 		return 'ImageParser';
+	}
+	
+	static get Priority() {
+		return 200;
 	}
 
 	/**
@@ -779,6 +792,10 @@ class Part {
 		return 'PartParser';
 	}
 
+	static get Priority() {
+		return 100;
+	}
+
 	/**
 	 *
 	 * @return Promise, Boolean, true: can parse, false: can't parse
@@ -960,7 +977,6 @@ class ImageX extends Image {
  */
 class LineProcessor{
 	constructor () {
-		this.ignored = [];
 		this.failed = [];
 		this.parts = []; 
 		this.parsedLineCount = 0;
@@ -987,12 +1003,6 @@ class LineProcessor{
 
 		try {
 
-			if (! parser) {
-				return Q().then(function() {
-					debug('Line-' + line.getPosition() + '(' + path.basename(line.getLogFile()) + ') is ' + colors.yellow.bold('ignored') + ': "' + line.getContent() + '"');
-					self.ignored.push(line);
-				}).nodeify(callback);	
-			}
 
 			let opts = {};
 			opts.processor = self;
@@ -1043,10 +1053,6 @@ class LineProcessor{
 	    parts: parts
 		};
 	} 
-
-	ignoredLines() {
-		return this.ignored;
-	}
 
 	failedLines() {
     return this.failed;	
@@ -1332,6 +1338,87 @@ class SequencingLineParseTask extends BaseTask {
 	}
 }
 
+class GroupPriorityJobQTask extends BaseTask {
+	
+	constructor(context) {
+		super(context);
+		// groups is the container of 
+		// jobQueues, jobQueues is a Object type, priority is the key, and 
+		// value is an array of lines to parse 
+		this.groups = [];
+		this.sortedQ = [];
+
+	}
+
+	getCurrentGroup() {
+		const self = this;
+    if (self.groups.length === 0) {
+			return;
+		}	
+
+		return self.groups[self.groups.length - 1];
+	}
+
+	addJob(line) {
+		const self = this;
+
+		if (! line) return;
+		if (! line.getParser()) {
+			debug('Line-' + line.getPosition() + '(' + path.basename(line.getLogFile()) + ') is ' + colors.yellow.bold('ignored') + ': "' + line.getContent() + '"');
+			return;
+		}
+
+		if (line.getParser().QNAME === Part.QNAME) {
+			self.groups.push({});
+		}
+
+		const jobQueues = self.getCurrentGroup();
+
+		let priority = line.getParser().Priority || DEFAULT_JOB_PRIORITY;
+		let queue = jobQueues[priority];
+		if (! queue) {
+	    queue = [];	
+			jobQueues[priority] = queue;
+		}
+		queue.push(line);
+	}
+	
+	undoAsync(done) {
+		done();
+	}
+	
+  doAsync(done) {
+		const self = this;
+		const workerTaskMgrt = new TasksMgrt(); 
+		let workerCtx = {
+			processor: self.context.processor	
+		};
+
+		self.groups.forEach(function(jobQueues) {
+			let priorites = Object.keys(jobQueues).sort(function(l, r) {
+				return l - r;	
+			});
+
+			priorites.forEach(function(key) {
+				self.sortedQ = self.sortedQ.concat(jobQueues[key]);	
+			});
+
+			self.sortedQ.forEach(function(line) {
+				workerTaskMgrt.addTask(new SequencingLineParseTask(workerCtx, line));
+			});
+		});
+			
+		workerTaskMgrt.processAsync(workerCtx, function(error, result) {
+			if (error) {
+				console.error('Failed to perform sequencing-logfile-parse-task, due to:', error);
+				return  done(error);	
+			}
+			done();
+		});
+	}
+
+}
+
 class SequencingLogFileParseTask extends BaseTask {
 	constructor(context, logFile) {
     super(context);	
@@ -1351,6 +1438,8 @@ class SequencingLogFileParseTask extends BaseTask {
 
 		let slpTaskMgrt = new TasksMgrt(); 
 		let subCtx = {processor: processor};
+		let gpjqTask = new GroupPriorityJobQTask(subCtx);
+		slpTaskMgrt.addTask(gpjqTask);
 
 		let rl = readline.createInterface({
 			input: fs.createReadStream(self.logFile),
@@ -1362,7 +1451,7 @@ class SequencingLogFileParseTask extends BaseTask {
 			position ++;
 			let line = new Line(position, self.logFile, l);
 
-			if (line.getParser() && line.getParser().QNAME === 'InteractionParser') {
+			if (line.getParser() && line.getParser().QNAME === Interaction.QNAME) {
 		    status.readInteraction ++;	
 				if (conf.skip > 0 && status.readInteraction <= conf.skip) {
 					debug('Line-' + line.getPosition() + '(' + path.basename(line.getLogFile()) + ') is ' + colors.blue.bold('skipped') + ': "' + line.getContent() + '", since skip conf: ' + conf.skip + ', current course position: '+ status.readInteraction);
@@ -1377,8 +1466,7 @@ class SequencingLogFileParseTask extends BaseTask {
 				status.parsedInteraction ++;
 			}
 
-			let seqLPT = new SequencingLineParseTask(subCtx, line);
-			slpTaskMgrt.addTask(seqLPT);
+			gpjqTask.addJob(line);
 		});
 		
 		rl.on('close', function(){
