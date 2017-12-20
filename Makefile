@@ -20,7 +20,8 @@ all: ./build ./calltracer ./calltracer-debug ./example ./example-debug
 
 ./run-debug:
 	@CALLTRACER_ENABLE=1 ./out/build/Debug/example
-	@DEBUG=* ./tools/iseq/iseq -s 9 -l 2 -o ./out ./cst.log > ./out/iseq.log 2> ./out/iseq.log
+	# @DEBUG=* ./tools/iseq/iseq -s 1 -l 5 -o ./out ./cst.log > ./out/iseq.log 2> ./out/iseq.log
+	@DEBUG=* ./tools/iseq/iseq -s 0 -l unlimited -o ./out ./cst.log > ./out/iseq.log 2> ./out/iseq.log
 
 ./clean:
 	@rm -rf ./out
