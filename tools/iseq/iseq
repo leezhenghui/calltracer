@@ -1352,6 +1352,43 @@ class SequencingLogFileParseTask extends BaseTask {
 	}
 }
 
+class SeqDiagGenerator extends BaseTask {
+	constructor(context) {
+    super(context);	
+	}
+	
+	undoAsync(done) {
+		done();
+	}
+
+  doAsync(done) {
+		const self = this;
+		const conf = self.context.conf;
+
+		const processor = self.context.processor;
+		const descFile = path.join(conf.outdir, OUT_SEQ_DESC_FILE);
+		const jsonFile = path.join(conf.outdir, OUT_SEQ_JSON_FILE);
+		const tempalte = fs.readFileSync(TEMPLATE_PATH, 'utf8');	
+		const pngFile = path.join(conf.outdir, OUT_SEQ_PNG_FILE);
+
+		fs.writeFileSync(jsonFile, JSON.stringify(processor.aggregateX()), 'utf8');
+		let reval = Mustache.render(tempalte, processor.aggregateX());
+		fs.writeFileSync(descFile, reval, 'utf8');
+
+		let seqdiag_cmd = new CMDExecutor(SEQDIAG_CMD);
+		let params = ['--no-transparency','-o', pngFile, descFile];
+
+		return seqdiag_cmd.exec(params).then(function(output) {
+			debug('Run seqdiag command,  params:\n', params, '\n output:\n', '"' + output + '"');
+			done();
+			return reval;
+		}).fail(function(error) {
+	   console.error('Failed to run seqdiag command, due to ', error); 	
+			done(error);
+		});
+	}
+}
+
 //=========================================================
 //                   Main 
 //=========================================================
@@ -1426,10 +1463,9 @@ logs.forEach(function(log) {
 	tm.addTask(seqLogfilePT);
 });
 
+tm.addTask(new SeqDiagGenerator(context));
+
 tm.processAsync(context, function(error, result) {
-	fs.writeFileSync(path.join(conf.outdir, OUT_SEQ_JSON_FILE), JSON.stringify(lp.aggregateX()), 'utf8');
-  let tempalte = fs.readFileSync(TEMPLATE_PATH, 'utf8');	
-	let reval = Mustache.render(tempalte, lp.aggregateX());
-	fs.writeFileSync(path.join(conf.outdir, OUT_SEQ_DESC_FILE), reval, 'utf8');
+	console.log('DONE');
 });
 

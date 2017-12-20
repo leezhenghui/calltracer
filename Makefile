@@ -21,7 +21,6 @@ all: ./build ./calltracer ./calltracer-debug ./example ./example-debug
 ./run-debug:
 	@CALLTRACER_ENABLE=1 ./out/build/Debug/example
 	@DEBUG=* ./tools/iseq/iseq -o ./out ./cst.log > ./out/iseq.log 2> ./out/iseq.log
-	@seqdiag --no-transparency  ./out/seqdiag.desc
 
 ./clean:
 	@rm -rf ./out
