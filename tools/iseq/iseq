@@ -180,7 +180,7 @@ class Port {
 	}
 
 	static get ADDR_TO_LINE_PATTERN() {	
-		return /^\s*(\S+)\s+(?:at)*\s*(\S+):([0-9\?]+)[\s+\S*|\s*]*$/g;
+		return /^\s*((?:\S+\s*(?!at)\S*)*)\s+(?:at)*\s*(\S+):([0-9\?]+)(?:\s+\S*\s*)*$/g;
 	}
 
 	/**
