@@ -1,5 +1,16 @@
 #!/usr/bin/env node
 
+/**
+ * The utility tool which used to generate seqencing textual data/diagram for the C/C++ application 
+ * which compiled with shared lib calltracer
+ *
+ * The tool can run on Linux with external dependents, including: addr2line, seqdiag command, and node runtime env.
+ *
+ * So far, it still not supports other OS
+ *
+ * @author leezhenghui@gmail.com 
+ *
+ */
 'use strict'
 
 //========================================================
