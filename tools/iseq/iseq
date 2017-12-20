@@ -1406,6 +1406,11 @@ class SeqDiagGenerator extends BaseTask {
 		let reval = Mustache.render(tempalte, processor.aggregateX());
 		fs.writeFileSync(descFile, reval, 'utf8');
 
+		if (conf.textual) {
+	    done();
+			return reval;
+		}
+
 		let seqdiag_cmd = new CMDExecutor(SEQDIAG_CMD);
 		let params = ['--no-transparency','-o', pngFile, descFile];
 
@@ -1432,6 +1437,7 @@ program
 	.option('-o, --outdir [outdir]', 'Output directory, default to current working directory')
 	.option('-l, --limit [limit]', 'Limit count of the interactions, default is unlimited')
 	.option('-s, --skip [skip]', 'Skip parsing of the interactions with specified count, default is 0')
+	.option('-t, --textual [textual]', 'Only generate textual description, does not generate png, default is false')
 	.parse(process.argv);
 
 if (! program.args || program.args.length === 0) {
@@ -1456,6 +1462,7 @@ let conf = {
 	'outdir': (program.outdir ? program.outdir : process.cwd()),
 	'limit': (program.limit ? parseInt(program.limit) : 'unlimited'),
 	'skip': (program.skip? parseInt(program.skip) : 0),
+	'textual': (program.textual ? program.textual : false)
 };
 
 if (! path.isAbsolute(conf.outdir)) {
@@ -1468,6 +1475,14 @@ if (! fs.existsSync(conf.outdir)) {
 	process.exit(1);
 }
 
+if ('string' === typeof conf.textual) {
+	if ('true' === conf.textual.toLowerCase()) {
+		conf.textual = true;	
+	} else {
+		conf.textual = false;	
+	}
+}
+
 console.log('\n*******************************************************');
 
 logs.forEach(function(logfile) {
@@ -1475,6 +1490,7 @@ logs.forEach(function(logfile) {
 	console.log('==>  OUT DIR: "' + conf.outdir+ '"');
 	console.log('==>  LIMIT: "' + conf.limit+ '"');
 	console.log('==>  SKIP: ' + conf.skip);
+	console.log('==>  TEXTUAL: ' + conf.textual);
 });
 
 console.log('*******************************************************\n\n');
