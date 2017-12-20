@@ -1511,7 +1511,8 @@ class SeqDiagGenerator extends BaseTask {
 		}
 
 		let seqdiag_cmd = new CMDExecutor(SEQDIAG_CMD);
-		let params = ['--no-transparency','-o', pngFile, descFile];
+		// let params = ['--no-transparency','-o', pngFile, descFile];
+		let params = ['-o', pngFile, descFile];
 
 		return seqdiag_cmd.exec(params).then(function(output) {
 			debug('Run seqdiag command,  params:\n', params, '\n output:\n', '"' + output + '"');
