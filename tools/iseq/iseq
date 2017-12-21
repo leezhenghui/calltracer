@@ -26,6 +26,7 @@ const debug         = require('debug')('a2s');
 const child_process = require('child_process');
 const readline      = require('readline');
 const Mustache      = require('mustache');
+const df            = require('dateformat');
 
 //=========================================================
 //     Global Variables
@@ -44,6 +45,7 @@ const OUT_SEQ_DESC_FILE = 'seqdiag.desc';
 const OUT_SEQ_PNG_FILE = 'seqdiag.png';
 const OUT_SEQ_JSON_FILE = 'seqdiag.json';
 const DEFAULT_JOB_PRIORITY = 300;
+const DEFAULT_DATEFOMRAT_PATTERN = 'm/d/yy h:m:s l';
 
 //==========================================================
 //  Class/Utility Definitions
@@ -922,6 +924,7 @@ class InteractionX extends Interaction {
 		json.tVMA = self.getTarget().getVMAInHex();
 		json.isReq = self.isRequest() ? true : false;
 		let timestamp = new Date(parseInt(self.getTimestamp()));
+		timestamp = df(timestamp, DEFAULT_DATEFOMRAT_PATTERN);
 		json.timestamp = timestamp;
 
 		return json;
@@ -948,8 +951,10 @@ class PartX extends Part {
 
 		let startTime = self.interactions[0] && self.interactions[0].getTimestamp();
 		startTime = startTime && new Date(parseInt(startTime));
+		startTime = df(startTime, DEFAULT_DATEFOMRAT_PATTERN);
 		let endTime = self.interactions[0] && self.interactions[self.interactions.length - 1].getTimestamp();
 		endTime = endTime && new Date(parseInt(endTime));
+		endTime = df(endTime, DEFAULT_DATEFOMRAT_PATTERN);
 		return {
 	    pid: self.pid,
 			startTime: startTime,

@@ -17,7 +17,7 @@ seqdiag {
 	default_note_color = lightblue;
 
    {{#parts}}
-	  === PID-{{&pid}} [{{&startTime}}-{{&endTime}}]  ===
+	  === PID-{{&pid}} [{{&startTime}} ~ {{&endTime}}]  ===
 		{{#interactions}}
 		   {{#isReq}} 
 			   "{{&sImg}}:{{&sCode}}" -> "{{&tImg}}:{{tCode}}" [leftnote = "{{&sFunc}}()<{{&sCode}}:{{&sLine}}>",  label = "Call: {{&tFunc}}()<{{&tCode}}:{{&tLine}}>; time={{&timestamp}}", color = {{&color}}];

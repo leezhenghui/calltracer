@@ -23,6 +23,7 @@
 #include <sys/syscall.h>
 #include <string.h>
 #include <fcntl.h>
+#include <sys/timeb.h>
 
 #include "./calltracer.h" 
 
@@ -78,6 +79,13 @@ static void mem_layout() {
 }
 
 __attribute__((no_instrument_function))
+static long long get_system_time() {
+	struct timeb t;
+	ftime(&t);
+	return 1000 * t.time + t.millitm;
+}
+
+__attribute__((no_instrument_function))
 static void func_trace(const void *callee, const void *caller, const unsigned int isEntry) {
 
 	if (! isTracerEnabled) {
@@ -98,7 +106,8 @@ static void func_trace(const void *callee, const void *caller, const unsigned in
 		perror("Failed to gettid!");
 	}
 #endif
-	unsigned int timestamp = (unsigned int) time(NULL);
+
+	long long timestamp = get_system_time();
 
 	char* call_dirction_tag;
 	if (isEntry) {
@@ -106,7 +115,7 @@ static void func_trace(const void *callee, const void *caller, const unsigned in
 	} else {
     call_dirction_tag = FUNC_EXIT_TAG;	
 	}
-	sprintf(msg, "  %d      %d    %d    %d    %d    %s    %p    %p\n", timestamp, gid, ppid, pid, tid, call_dirction_tag, caller, callee);
+	sprintf(msg, "  %lld      %d    %d    %d    %d    %s    %p    %p\n", timestamp, gid, ppid, pid, tid, call_dirction_tag, caller, callee);
 	write(log, msg, strlen(msg));
 }
 
