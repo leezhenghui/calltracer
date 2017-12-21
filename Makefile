@@ -31,6 +31,7 @@ all: ./build ./calltracer ./calltracer-debug ./example ./example-debug ./hellowo
 	@./out/build/Release/example
 
 ./run-debug:
+	# @CALLTRACER_ENABLE=1 LD_DEBUG=./ld.log LD_PRELOAD=/home/lizh/playground/c-workspace/calltracer/out/build/Debug/lib.target/libcalltracer.so ./out/build/Debug/example
 	@CALLTRACER_ENABLE=1 ./out/build/Debug/example
 	# @DEBUG=* ./tools/iseq/iseq -s 1 -l 5 -o ./out ./cst.log > ./out/iseq.log 2> ./out/iseq.log
 	@DEBUG=* ./tools/iseq/iseq -s 0 -l unlimited -o ./out ./cst.log > ./out/iseq.log 2> ./out/iseq.log

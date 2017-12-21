@@ -6,11 +6,12 @@
 				"product_name": "example",
 				"type": "executable",
 				"sources": [
-					"./examples/example.c"
+					"./examples/example.c",
 				],
 				"cflags": [],
 				"include_dirs": [
-					"include"
+					"include",
+          './examples/plugins/svc_discover.h',
 				],
 				'link_settings': {
 					'libraries': [
@@ -22,7 +23,7 @@
 				],
 				'dependencies': [
 					'calltracer',
-				   './examples/deps/simplelogger.gyp:simplelogger',
+					'svc_discover'
 				],
 				'configurations': {
 					'Debug': {
@@ -31,7 +32,64 @@
 							]
 						}	
 				}
+		},
+    {
+      'target_name': 'simplelogger',
+      'type': 'shared_library',
+			'cflags': [
+				 '-std=c99',
+				 '-fPIC',
+				 '-Wimplicit-function-declaration',
+			],
+      'sources': [
+        './examples/deps/simplelogger/simplog.h',
+        './examples/deps/simplelogger/simplog.c',
+      ],
+			"include_dirs": [
+				"include",
+			'./src/calltracer.h',
+			],
+			'dependencies': [
+				'calltracer',
+			],
+			'configurations': {
+				'Debug': {
+					"cflags": [
+						"-finstrument-functions"
+						]
+				}	
 			},
+    },
+    {
+      'target_name': 'svc_discover',
+      'type': 'static_library',
+      'sources': [
+					"./examples/plugins/svc_discover.c",
+      ],
+			'cflags': [
+			],
+			'link_settings': {
+				'libraries': [
+					'-ldl'	
+					]	
+			},
+			'ldflags': [
+				'-rdynamic'
+			],
+			'include_dirs': [
+			  './examples/deps/simplelogger',
+			],
+			'dependencies': [
+				'simplelogger',
+			],
+			'configurations': {
+				'Debug': {
+					"cflags": [
+						"-finstrument-functions"
+						]
+				}	
+			}
+    },
     {
       'target_name': 'helloworld_en',
       'type': 'shared_library',
@@ -47,6 +105,9 @@
 			'include_dirs': [
         './examples/plugins/hello_world.h',
 			  './examples/deps/simplelogger',
+			],
+			'dependencies': [
+				'simplelogger',
 			],
 			'configurations': {
 				'Debug': {
@@ -71,6 +132,9 @@
 			'include_dirs': [
         './examples/plugins/hello_world.h',
 			  './examples/deps/simplelogger',
+			],
+			'dependencies': [
+				'simplelogger',
 			],
 			'configurations': {
 				'Debug': {

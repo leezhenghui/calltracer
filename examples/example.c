@@ -21,22 +21,7 @@
 #include <string.h>
 #include  <dlfcn.h> 
 
-#include  "./deps/simplelogger/simplog.h"
-#include  "./plugins/hello_world.h"
-
-#ifdef DEBUG
-#define HELLOWORLD_CN_LIB "/out/build/Debug/lib.target/libhelloworld_cn.so"
-#define HELLOWORLD_EN_LIB "/out/build/Debug/lib.target/libhelloworld_en.so"
-#endif
-
-#ifdef NDEBUG
-#define HELLOWORLD_CN_LIB "/out/build/Release/lib.target/libhelloworld_cn.so"
-#define HELLOWORLD_EN_LIB "/out/build/Release/lib.target/libhelloworld_en.so"
-#endif
-
-static void *lib_handle_en;
-static void *lib_handle_cn;
-static char cwd[1024];
+#include  "./plugins/svc_discover.h"
 
 static void pre_main (void) __attribute__ ((constructor));
 static void post_main (void) __attribute__ ((destructor));
@@ -46,42 +31,19 @@ static const char* str_cn = "cn";
 
 static void pre_main (void) 
 {
-	simplog.writeLog( SIMPLOG_DEBUG, "[pre_main] example");
-	if (getcwd(cwd, sizeof(cwd)) != NULL) {
-		printf("==> Working directory is %s\n", cwd);
-	}
-
-	char enlib_path[2048];
-	memset(enlib_path, '\0', sizeof(enlib_path));
-	strcat(enlib_path, cwd);
-	strcat(enlib_path, HELLOWORLD_EN_LIB);
-	printf("==> Loading en_lib from  %s\n", enlib_path);
-	lib_handle_en = dlopen(enlib_path, RTLD_LAZY);
-
-	char cnlib_path[2018];
-	memset(cnlib_path, '\0', sizeof(cnlib_path));
-	strcat(cnlib_path, cwd);
-	strcat(cnlib_path, HELLOWORLD_CN_LIB);
-	printf("==> Loading cn_lib from  %s\n", cnlib_path);
-	lib_handle_cn = dlopen(cnlib_path, RTLD_LAZY);
+	printf("==> [pre_main] example\n");
 }
 
 static void post_main (void) 
 {
-	simplog.writeLog( SIMPLOG_DEBUG, "[post_main] example");
+	printf("==> [post_main] example\n");
 }
 
 void log(const char* str) {
 	double (*fn)();
 
-	int is_en = strcmp(str, str_en);
-
-	if ( is_en == 0) {
-		fn = dlsym(lib_handle_en, "sayHello");
-	} else {
-		fn = dlsym(lib_handle_cn, "sayHello");
-	}
-
+  void *handler = get_handler(str);
+	fn = dlsym(handler, "sayHello");
 	(*fn)();
 
 	return 0;

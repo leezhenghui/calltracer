@@ -113,6 +113,7 @@ static void func_trace(const void *callee, const void *caller, const unsigned in
 
 
 void calltracer_start(void) {
+	printf("==> calltracer start\n");
 	char *is_tracer_enabled_env;
 	if ((is_tracer_enabled_env = getenv("CALLTRACER_ENABLE"))){
 		isTracerEnabled = atoi(is_tracer_enabled_env);
@@ -141,6 +142,7 @@ void calltracer_start(void) {
 }
 
 void calltracer_stop(void) {
+	printf("==> calltracer stop\n");
   // mem_layout in stop phase, as
 	// the shared lib may being loaded during execution time via
 	// dlopen way
@@ -159,4 +161,12 @@ void __cyg_profile_func_enter (void *callee,  void *caller)
 void __cyg_profile_func_exit (void *callee, void *caller)
 {
 	func_trace(callee, caller, 0);
+}
+
+void calltracer_on() {
+
+}
+
+void calltracer_off() {
+
 }
