@@ -911,6 +911,7 @@ class InteractionX extends Interaction {
 	toJSONX() {
 		let json = {};
 		let self = this;
+		json.tid = self.getTid();
 		json.color = self.color; 
 		json.sImg = self.getSource().image.getBasename();
 		json.sCode = self.getSource().getShortSrcLoc();
