@@ -606,6 +606,12 @@ class Image {
 			endVMA = parsedReval[2];
 			imgPath = parsedReval[3];
 
+			if (opts.conf.fixlibpath && fs.existsSync(opts.conf.fixlibpath)) {
+				debug('Line-' + line.getPosition() + '(' + path.basename(line.getLogFile()) + '), use fixlibpath to replace the orignal path: ' + colors.yellow.bold('"' + path.dirname(imgPath) + '" ==> "' + opts.conf.fixlibpath + '"'));
+				let imgBasename = path.basename(imgPath);
+				imgPath = path.join(opts.conf.fixlibpath, imgBasename);
+			}
+
 			let image = new ImageX(imgPath, startVMA, endVMA);
 			opts.processor.getCurrentPart().pushImage(image);
 			debug('Line-' + line.getPosition() + '(' + path.basename(line.getLogFile()) + ') is ' + colors.green.bold('parsed') + ': "' + line.getContent() + '" ==> Image: ' + JSON.stringify(image.toJSON()));
@@ -982,10 +988,11 @@ class ImageX extends Image {
  *
  */
 class LineProcessor{
-	constructor () {
+	constructor (conf) {
 		this.failed = [];
 		this.parts = []; 
 		this.parsedLineCount = 0;
+		this.conf = conf;
 	}
 
 	static get ELEMENT_TYPES () {
@@ -1008,9 +1015,9 @@ class LineProcessor{
 		let parser = line.getParser();
 
 		try {
-
-
-			let opts = {};
+			let opts = {
+		    conf: self.conf	
+			};
 			opts.processor = self;
 			return parser.parse(line, opts).then(function(reval) {
 				self.parsedLineCount++;
@@ -1397,7 +1404,8 @@ class GroupPriorityJobQTask extends BaseTask {
 		const self = this;
 		const workerTaskMgrt = new TasksMgrt(); 
 		let workerCtx = {
-			processor: self.context.processor	
+			processor: self.context.processor,
+			conf: self.context.conf
 		};
 
 		self.groups.forEach(function(jobQueues) {
@@ -1443,7 +1451,10 @@ class SequencingLogFileParseTask extends BaseTask {
 		let conf = self.context.conf;
 
 		let slpTaskMgrt = new TasksMgrt(); 
-		let subCtx = {processor: processor};
+		let subCtx = {
+			processor: processor,
+			conf : conf
+		};
 		let gpjqTask = new GroupPriorityJobQTask(subCtx);
 		slpTaskMgrt.addTask(gpjqTask);
 
@@ -1544,6 +1555,7 @@ program
 	.option('-l, --limit [limit]', 'Limit count of the interactions, default is unlimited')
 	.option('-s, --skip [skip]', 'Skip parsing of the interactions with specified count, default is 0')
 	.option('-t, --textual [textual]', 'Only generate textual description, does not generate png, default is false')
+	.option('-f, --fixlibpath [fixlibpath]', 'Specify a fixed lib path in case of the machine of programming running is not same as the iseq processing, default is null')
 	.parse(process.argv);
 
 if (! program.args || program.args.length === 0) {
@@ -1568,7 +1580,8 @@ let conf = {
 	'outdir': (program.outdir ? program.outdir : process.cwd()),
 	'limit': (program.limit ? parseInt(program.limit) : 'unlimited'),
 	'skip': (program.skip? parseInt(program.skip) : 0),
-	'textual': (program.textual ? program.textual : false)
+	'textual': (program.textual ? program.textual : false),
+	'fixlibpath': (program.fixlibpath ? program.fixlibpath : null)
 };
 
 if (! path.isAbsolute(conf.outdir)) {
@@ -1577,6 +1590,16 @@ if (! path.isAbsolute(conf.outdir)) {
 
 if (! fs.existsSync(conf.outdir)) {
 	console.error(colors.red('[Error]: ') + 'out directory does not exist - "' + conf.outdir + '"');	
+	program.outputHelp();
+	process.exit(1);
+}
+
+if (conf.fixlibpath && ! path.isAbsolute(conf.fixlibpath)) {
+	conf.fixlibpath = path.resolve(process.cwd(), conf.fixlibpath);
+}
+
+if (conf.fixlibpath && ! fs.existsSync(conf.fixlibpath)) {
+	console.error(colors.red('[Error]: ') + 'fix lib path does not exist - "' + conf.fixlibpath+ '"');	
 	program.outputHelp();
 	process.exit(1);
 }
@@ -1603,7 +1626,7 @@ console.log('*******************************************************\n\n');
 
 const context = {};
 const tm = new TasksMgrt();
-const lp =  new LineProcessor();
+const lp =  new LineProcessor(conf);
 
 context.processor = lp;
 context.conf = conf;
