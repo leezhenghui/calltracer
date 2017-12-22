@@ -557,7 +557,7 @@ class Image {
 	 *    2adf33535000-2adf33539000 r-xp 00000000 08:11 60690196                   /home/lizh/playground/calltracer/out/build/Debug/lib.target/libsimplelogger.so
 	 */
 	static get PATTERN() {
-    return /^\s*([a-zA-Z0-9]+)-([a-zA-Z0-9]+)\s+r-xp\s+[a-zA-Z0-9]+\s+[0-9]+:[0-9]+\s+[0-9]+\s+([\S]+)\s*$/g;	
+    return /^\s*([a-zA-Z0-9]+)-([a-zA-Z0-9]+)\s+r-xp\s+[a-zA-Z0-9]+\s+[0-9a-zA-Z]+:[0-9a-zA-Z]+\s+[0-9]+\s+([\S]+)\s*$/g;	
 	}
 
 	/**
