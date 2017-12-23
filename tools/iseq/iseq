@@ -34,6 +34,9 @@ const df            = require('dateformat');
 
 const ADDR2LINE_CMD = '/usr/bin/addr2line';
 const SEQDIAG_CMD = '/usr/bin/seqdiag';
+const DIAGRAMS_CMD_LAUNCHER = '/usr/local/bin/node';
+const DIAGRAMS_CMD = 'diagrams';
+const DIAGRAMS_CMD_CWD = __dirname;
 
 const DEFAULT_NUMBER_RADIX = 16;
 
@@ -41,9 +44,13 @@ const DIAG_LINE_COLORS = ['blue', 'green', 'orange'];
 const DIAG_LINE_ERROR_COLOR = 'red';
 
 const TEMPLATE_PATH = path.join(__dirname, 'templates/seqdiag.mustache');
+const DIAGRAMS_TEMPLATE_PATH = path.join(__dirname, 'templates/diagrams.mustache');
 const OUT_SEQ_DESC_FILE = 'seqdiag.desc';
+const OUT_SEQ_DIAGRAMS_DESC_FILE = 'diagrams.desc';
 const OUT_SEQ_PNG_FILE = 'seqdiag.png';
+const OUT_SEQ_SVG_FILE = 'diagrams.svg';
 const OUT_SEQ_JSON_FILE = 'seqdiag.json';
+const OUT_SEQ_DIAGRAMS_JSON_FILE = 'diagrams.json';
 const DEFAULT_JOB_PRIORITY = 300;
 const DEFAULT_DATEFOMRAT_PATTERN = 'm/d/yy h:m:s l';
 
@@ -67,8 +74,9 @@ let getDiffColor = function getDiffColor(previousColor) {
 }
 
 class CMDExecutor {
-	constructor(cmd) {
+	constructor(cmd, cwd) {
 		this.cmd = cmd;
+		this.cwd = cwd;
 	}
 
 	/**
@@ -86,7 +94,7 @@ class CMDExecutor {
 		let self = this;
 
 		try {
-			let runner = child_process.spawn(self.cmd, params, {'cwd': process.cwd(), stdio: 'pipe'});
+			let runner = child_process.spawn(self.cmd, params, {'cwd': self.cwd || process.cwd(), stdio: 'pipe'});
 
 			let reval = '';
 			let fault = '';
@@ -259,6 +267,11 @@ class Port {
 			let execPoint = parsedOutput[3];
 			let reval = new Port(funcName, srcLoc, execPoint, addr, opts.image);
 			opts.image.setPort(addr, reval);
+			if (! opts.part.firstParticipatePort) {
+				opts.part.firstParticipatePort = reval;
+			} else {
+				opts.part.lastParticipatePort = reval;
+			}
 			return reval;
 		}).nodeify(callback);
 	}
@@ -349,6 +362,7 @@ class Interaction {
 		this.timestamp = timestamp;
 		this.pid = pid;
 		this.tid = tid;
+		this.seq;
 	}
 	
 	static get QNAME() {
@@ -392,7 +406,7 @@ class Interaction {
 			let currentPart = opts.processor.getCurrentPart();
 			let ownerImage = currentPart.findImageByFuncVMA(srcAddr);
 
-			return Port.parse(srcAddr, {image: ownerImage}).then(function(port) {
+			return Port.parse(srcAddr, {image: ownerImage, part: currentPart}).then(function(port) {
 				debug('Line-' + line.getPosition() + '(' + path.basename(line.getLogFile()) + ') is ' + colors.green.bold('partial parsed') +': "left-side func-addr: ' + srcAddr + '" ==> Port: ' + JSON.stringify(port.toJSON()));
 				srcPort = port;	
 			});
@@ -400,7 +414,7 @@ class Interaction {
 			let currentPart = opts.processor.getCurrentPart();
 			let ownerImage = currentPart.findImageByFuncVMA(targetAddr);
 
-			return Port.parse(targetAddr, {image: ownerImage}).then(function(port) {
+			return Port.parse(targetAddr, {image: ownerImage, part: currentPart}).then(function(port) {
 				debug('Line-' + line.getPosition() + '(' + path.basename(line.getLogFile()) + ') is ' + colors.green.bold('partial parsed') + ': "right-side func-addr: ' + targetAddr + '" ==> Port: ' + JSON.stringify(port.toJSON()));
 				targetPort = port;	
 			});
@@ -770,6 +784,9 @@ class Part {
     this.pid = pid;	
 		this.interactions = [];
 		this.images = [];
+		this.firstParticipatePort = null;
+		this.lastParticipatePort = null;
+		this.seqCursor = 0;
 	}
 
 	/**
@@ -853,6 +870,8 @@ class Part {
 	pushInteraction(inter) {
 		let self = this;
 		if (inter) {
+			self.seqCursor ++;
+			inter.seq = self.seqCursor;
 	    self.interactions.push(inter);	
 		}
 	
@@ -940,6 +959,7 @@ class InteractionX extends Interaction {
 		let timestamp = new Date(parseInt(self.getTimestamp()));
 		timestamp = df(timestamp, DEFAULT_DATEFOMRAT_PATTERN);
 		json.timestamp = timestamp;
+		json.seq = self.seq;
 
 		return json;
 	}
@@ -973,6 +993,12 @@ class PartX extends Part {
 	    pid: self.pid,
 			startTime: startTime,
 			endTime: endTime,
+			firstImg: self.firstParticipatePort.image.getBasename(),
+			firstCode: self.firstParticipatePort.getShortSrcLoc(),
+			firstAbsCode: self.firstParticipatePort.getAbsSrcLoc(),
+			lastImg: self.lastParticipatePort.image.getBasename(),
+			lastCode: self.lastParticipatePort.getShortSrcLoc(),
+			lastAbsCode: self.lastParticipatePort.getAbsSrcLoc(),
 			images: images,
 			interactions: interactions
 		};
@@ -1549,6 +1575,49 @@ class SeqDiagGenerator extends BaseTask {
 	}
 }
 
+class DiagramsGenerator extends BaseTask {
+	constructor(context) {
+    super(context);	
+	}
+	
+	undoAsync(done) {
+		done();
+	}
+
+  doAsync(done) {
+		const self = this;
+		const conf = self.context.conf;
+
+		const processor = self.context.processor;
+		const descFile = path.join(conf.outdir, OUT_SEQ_DIAGRAMS_DESC_FILE);
+		const jsonFile = path.join(conf.outdir, OUT_SEQ_DIAGRAMS_JSON_FILE);
+		const tempalte = fs.readFileSync(DIAGRAMS_TEMPLATE_PATH, 'utf8');	
+		const svgFile = path.join(conf.outdir, OUT_SEQ_SVG_FILE);
+
+		fs.writeFileSync(jsonFile, JSON.stringify(processor.aggregateX()), 'utf8');
+		let reval = Mustache.render(tempalte, processor.aggregateX());
+		fs.writeFileSync(descFile, reval, 'utf8');
+
+		if (conf.textual) {
+	    done();
+			return reval;
+		}
+
+		let diagrams_cmd = new CMDExecutor(DIAGRAMS_CMD_LAUNCHER, DIAGRAMS_CMD_CWD);
+		// let params = ['--no-transparency','-o', pngFile, descFile];
+		let params = ['/usr/local/bin/npm', 'run', DIAGRAMS_CMD, '--', 'sequence',  descFile, svgFile];
+
+		return diagrams_cmd.exec(params).then(function(output) {
+			debug('Run seqdiag command,  params:\n', params, '\n output:\n', '"' + output + '"');
+			done();
+			return reval;
+		}).fail(function(error) {
+	   console.error('Failed to run seqdiag command, due to ', error); 	
+			done(error);
+		});
+	}
+}
+
 //=========================================================
 //                   Main 
 //=========================================================
@@ -1648,6 +1717,7 @@ logs.forEach(function(log) {
 });
 
 tm.addTask(new SeqDiagGenerator(context));
+tm.addTask(new DiagramsGenerator(context));
 
 tm.processAsync(context, function(error, result) {
 	console.log('DONE');

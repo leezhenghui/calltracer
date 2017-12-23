@@ -1,0 +1,19 @@
+# The template of textual sequencing description, 
+# which follow the Network Sequence Diagram Syntax 
+# CLI tool - "https://github.com/francoislaberge/diagrams"
+# will can consume this kind of description 
+# and generate svg
+
+{{#parts}}
+{{#interactions}}
+{{#isReq}} 
+"{{&sImg}}:{{&sCode}}"->"{{&tImg}}:{{tCode}}": "\nSeq={{&seq}}\nCall: {{&tFunc}}()<{{&tCode}}:{{&tLine}}>\ntid={{&tid}}\ntime={{&timestamp}}"
+Note left of "{{&sImg}}:{{&sCode}}": "{{&sFunc}}()<{{&sCode}}:{{&sLine}}>" 
+{{/isReq}}
+{{^isReq}} 
+"{{&tImg}}:{{tCode}}"-->"{{&sImg}}:{{&sCode}}": "\nSeq={{&seq}}\nReturn: {{&sFunc}}()<{{&sCode}}:{{&sLine}}>\ntid={{&tid}}\ntime={{&timestamp}}"
+Note right of "{{&tImg}}:{{tCode}}": "{{&tFunc}}()<{{&tCode}}:{{&tLine}}>"
+{{/isReq}}
+{{/interactions}}
+Note over "{{&firstImg}}:{{&firstCode}}","{{&lastImg}}:{{lastCode}}": "PID-{{&pid}} [{{&startTime}} ~ {{&endTime}}]" 
+{{/parts}}
