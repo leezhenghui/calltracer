@@ -22,7 +22,7 @@ const path          = require('path');
 const fs            = require('fs');
 const Q             = require('q');
 const colors        = require('colors');
-const debug         = require('debug')('a2s');
+const debug         = require('debug')('iseq');
 const child_process = require('child_process');
 const readline      = require('readline');
 const Mustache      = require('mustache');
@@ -314,6 +314,11 @@ class Port {
 		let self = this;
     return path.basename(self.srcLoc);	
 	}
+
+	getAbsSrcLoc() {
+    return this.srcLoc;	
+	}
+
 	getFuncName() {
     return this.funcName;	
 	}
@@ -921,11 +926,13 @@ class InteractionX extends Interaction {
 		json.color = self.color; 
 		json.sImg = self.getSource().image.getBasename();
 		json.sCode = self.getSource().getShortSrcLoc();
+		json.sAbsCode = self.getSource().getAbsSrcLoc();
 		json.sFunc = self.getSource().getFuncName();
 		json.sLine = self.getSource().getExecPoint();
 		json.sVMA = self.getSource().getVMAInHex();
 		json.tImg = self.getTarget().image.getBasename();
 		json.tCode = self.getTarget().getShortSrcLoc();
+		json.tAbsCode = self.getTarget().getAbsSrcLoc();
 		json.tFunc = self.getTarget().getFuncName();
 		json.tLine = self.getTarget().getExecPoint();
 		json.tVMA = self.getTarget().getVMAInHex();
