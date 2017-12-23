@@ -7,11 +7,11 @@
 {{#parts}}
 {{#interactions}}
 {{#isReq}} 
-"{{&sImg}}:{{&sCode}}"->"{{&tImg}}:{{tCode}}": "\nSeq={{&seq}}\nCall: {{&tFunc}}()<{{&tCode}}:{{&tLine}}>\ntid={{&tid}}\ntime={{&timestamp}}"
+"{{&sImg}}:{{&sCode}}"->"{{&tImg}}:{{tCode}}": "Seq={{&seq}}\nCall: {{&tFunc}}()<{{&tCode}}:{{&tLine}}>\ntid={{&tid}}\ntime={{&timestamp}}"
 Note left of "{{&sImg}}:{{&sCode}}": "{{&sFunc}}()<{{&sCode}}:{{&sLine}}>" 
 {{/isReq}}
 {{^isReq}} 
-"{{&tImg}}:{{tCode}}"-->"{{&sImg}}:{{&sCode}}": "\nSeq={{&seq}}\nReturn: {{&sFunc}}()<{{&sCode}}:{{&sLine}}>\ntid={{&tid}}\ntime={{&timestamp}}"
+"{{&tImg}}:{{tCode}}"-->"{{&sImg}}:{{&sCode}}": "Seq={{&seq}}\nReturn: {{&sFunc}}()<{{&sCode}}:{{&sLine}}>\ntid={{&tid}}\ntime={{&timestamp}}"
 Note right of "{{&tImg}}:{{tCode}}": "{{&tFunc}}()<{{&tCode}}:{{&tLine}}>"
 {{/isReq}}
 {{/interactions}}
