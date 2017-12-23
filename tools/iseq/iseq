@@ -695,7 +695,7 @@ class Image {
 		let self = this;
 		let extName = path.extname(self.getBasename()); 
 
-		if ('.so' === extName.toLowerCase() || '.dll' === extName.toLowerCase()) {
+		if ('.node' === extName.toLowerCase() || '.so' === extName.toLowerCase() || '.dll' === extName.toLowerCase()) {
 			return true;
 		}
 
