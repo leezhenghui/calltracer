@@ -268,9 +268,9 @@ class Port {
 			let reval = new Port(funcName, srcLoc, execPoint, addr, opts.image);
 			opts.image.setPort(addr, reval);
 			if (! opts.part.firstParticipatePort) {
-				opts.part.firstParticipatePort = reval;
+				opts.part.setFirstParticipatePort(reval);
 			} else {
-				opts.part.lastParticipatePort = reval;
+				opts.part.setLastParticipatePort(reval);
 			}
 			return reval;
 		}).nodeify(callback);
@@ -887,6 +887,14 @@ class Part {
 		return self.interactions[len -1];
 	}
 
+	setFirstParticipatePort(port) {
+    this.firstParticipatePort = port;	
+	}
+	
+	setLastParticipatePort(port) {
+    this.lastParticipatePort= port;	
+	}
+
 	toJSON() {
 		let self = this;
 		let images = [];
@@ -968,6 +976,44 @@ class InteractionX extends Interaction {
 class PartX extends Part {
 	constructor(pid) {
     super(pid);	
+		this.participateCodeStack = [];
+	}
+	
+	setFirstParticipatePort(port) {
+		super.setFirstParticipatePort(port);
+
+		this.participateCodeStack.push(
+	    {
+				imgBasename: port.image.getBasename(),
+		    shortSrcLoc: port.getShortSrcLoc(),
+				absSrcLoc: port.getAbsSrcLoc()
+		  }	
+		);
+	}
+	
+	setLastParticipatePort(port) {
+		super.setLastParticipatePort(port);
+		let isParticipated = false;
+		let imgBasename = port.image.getBasename();
+		let shortSrcLoc = port.getShortSrcLoc();
+		let absSrcLoc = port.getAbsSrcLoc();
+
+		this.participateCodeStack.some(function(pcs) {
+			if (pcs.imgBasename === imgBasename && 
+				shortSrcLoc === pcs.shortSrcLoc && 
+				absSrcLoc === pcs.absSrcLoc) {
+		    isParticipated = true;
+				return true;
+			} 
+		});
+
+		if (! isParticipated) {
+	    this.participateCodeStack.push({
+				imgBasename: imgBasename,
+		    shortSrcLoc: shortSrcLoc,
+				absSrcLoc: absSrcLoc 
+			});	
+		}
 	}
 
 	toJSONX() {
@@ -989,16 +1035,19 @@ class PartX extends Part {
 		let endTime = self.interactions[0] && self.interactions[self.interactions.length - 1].getTimestamp();
 		endTime = endTime && new Date(parseInt(endTime));
 		endTime = df(endTime, DEFAULT_DATEFOMRAT_PATTERN);
+
+		let firstSrc = self.participateCodeStack[0];
+		let lastSrc = self.participateCodeStack[self.participateCodeStack.length - 1];
 		return {
 	    pid: self.pid,
 			startTime: startTime,
 			endTime: endTime,
-			firstImg: self.firstParticipatePort.image.getBasename(),
-			firstCode: self.firstParticipatePort.getShortSrcLoc(),
-			firstAbsCode: self.firstParticipatePort.getAbsSrcLoc(),
-			lastImg: self.lastParticipatePort.image.getBasename(),
-			lastCode: self.lastParticipatePort.getShortSrcLoc(),
-			lastAbsCode: self.lastParticipatePort.getAbsSrcLoc(),
+			firstImg: firstSrc.imgBasename,
+			firstCode: firstSrc.shortSrcLoc,
+			firstAbsCode: firstSrc.absSrcLoc,
+			lastImg: lastSrc.imgBasename,
+			lastCode: lastSrc.shortSrcLoc,
+			lastAbsCode: lastSrc.absSrcLoc,
 			images: images,
 			interactions: interactions
 		};
