@@ -800,6 +800,7 @@ class Part {
 		this.firstParticipatePort = null;
 		this.lastParticipatePort = null;
 		this.seqCursor = 0;
+		this.reqSeqCursor = 0;
 		this.stackCollapse = new StackCollapse(this.pid);
 	}
 
@@ -886,6 +887,10 @@ class Part {
 		if (inter) {
 			self.seqCursor ++;
 			inter.seq = self.seqCursor;
+			if (inter.isRequest()) {
+		    self.reqSeqCursor ++;
+				inter.reqSeq = self.reqSeqCursor;
+			}
 	    self.interactions.push(inter);	
 			self.stackCollapse.append(inter);
 		}
@@ -960,9 +965,15 @@ class InteractionX extends Interaction {
 	 *       color: <String>
 	 *     }
 	 */
-	toJSONX() {
+	toJSONX(opts) {
 		let json = {};
 		let self = this;
+		let seq = self.seq;
+		let reqSeq = self.reqSeq;
+		if (opts.reqSeqPrefix) {
+			reqSeq = opts.reqSeqPrefix + reqSeq;
+			reqSeq = reqSeq.substr(reqSeq.length - opts.reqSeqPrefix.length);
+		}
 		json.tid = self.getTid();
 		json.color = self.color; 
 		json.sImg = self.getSource().image.getBasename();
@@ -981,7 +992,8 @@ class InteractionX extends Interaction {
 		let timestamp = new Date(parseInt(self.getTimestamp()));
 		timestamp = df(timestamp, DEFAULT_DATEFOMRAT_PATTERN);
 		json.timestamp = timestamp;
-		json.seq = self.seq;
+		json.seq = seq;;
+		json.reqSeq = reqSeq;
 
 		return json;
 	}
@@ -999,11 +1011,11 @@ class Stack {
    this.sid = sid;	
 	}
 
-	dump() {
+	dump(opts) {
 		let self = this;
 		let reval = {sid: self.sid, interactions: []};
 		self.interactions.forEach(function(i) {
-			reval.interactions.push(i.toJSONX());
+			reval.interactions.push(i.toJSONX(opts));
 		});
 		return reval;
 	}
@@ -1088,11 +1100,25 @@ class StackCollapse {
 		currentStack.interactions[nextUnpaired]._isCompleted = true;
 	}
 
+	_totalReqCount() {
+    const self = this;
+		let count = 0;
+		self.stacks.forEach(function(s) {
+			count = count + s.interactions.length;
+		});
+		return count;
+	}
+
 	dump() {
 		const self = this;
 		let reval = {pid: self.pid, stacks: []};
+		let reqSeqPrefix = '';
+		for (let i=0; i < (''+self._totalReqCount()).length; i++) {
+	    reqSeqPrefix = reqSeqPrefix + '0';	
+		}
+
 		self.stacks.forEach(function(s) {
-	    reval.stacks.push(s.dump());	
+	    reval.stacks.push(s.dump({reqSeqPrefix: reqSeqPrefix}));	
 		});
 		return reval;
 	}
@@ -1862,6 +1888,7 @@ program
 	.option('-o, --outdir [outdir]', 'Output directory, default to current working directory')
 	.option('-l, --limit [limit]', 'Limit count of the interactions, default is unlimited')
 	.option('-s, --skip [skip]', 'Skip parsing of the interactions with specified count, default is 0')
+	.option('-v, --visualizer [visualizer]', 'The visaulizer used to present the call stack, "framegraph", "seqdiag" and "diagrams" are supported,  default is "framegraph"')
 	.option('-t, --textual [textual]', 'Only generate textual description, does not generate png, default is false')
 	.option('-f, --fixlibpath [fixlibpath]', 'Specify a fixed lib path in case of the machine of programming running is not same as the iseq processing, default is null')
 	.parse(process.argv);
@@ -1889,7 +1916,8 @@ let conf = {
 	'limit': (program.limit ? parseInt(program.limit) : 'unlimited'),
 	'skip': (program.skip? parseInt(program.skip) : 0),
 	'textual': (program.textual ? program.textual : false),
-	'fixlibpath': (program.fixlibpath ? program.fixlibpath : null)
+	'fixlibpath': (program.fixlibpath ? program.fixlibpath : null),
+	'visualizer': (program.visualizer ? program.visualizer : 'flamegraph')
 };
 
 if (! path.isAbsolute(conf.outdir)) {
@@ -1948,9 +1976,17 @@ logs.forEach(function(log) {
 	tm.addTask(seqLogfilePT);
 });
 
-tm.addTask(new SeqDiagGenerator(context));
-tm.addTask(new DiagramsGenerator(context));
-tm.addTask(new FlameGraphGenerator(context));
+if ('seqdiag' === conf.visualizer.toLowerCase()) {
+	tm.addTask(new SeqDiagGenerator(context));
+}
+
+if ('diagrams' === conf.visualizer.toLowerCase()) {
+	tm.addTask(new DiagramsGenerator(context));
+}
+
+if ('flamegraph' === conf.visualizer.toLowerCase()) {
+	tm.addTask(new FlameGraphGenerator(context));
+}
 
 tm.processAsync(context, function(error, result) {
 	console.log('DONE');
