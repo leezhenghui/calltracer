@@ -37,6 +37,8 @@ const SEQDIAG_CMD = '/usr/bin/seqdiag';
 const DIAGRAMS_CMD_LAUNCHER = '/usr/local/bin/node';
 const DIAGRAMS_CMD = 'diagrams';
 const DIAGRAMS_CMD_CWD = __dirname;
+const FLAMEGRAPH_CMD_LAUNCHER = '/usr/bin/perl';
+const FLAMEGRAPH_CMD = path.join(__dirname, 'tools/FlameGraph', 'flamegraph.pl');
 
 const DEFAULT_NUMBER_RADIX = 16;
 
@@ -45,12 +47,20 @@ const DIAG_LINE_ERROR_COLOR = 'red';
 
 const TEMPLATE_PATH = path.join(__dirname, 'templates/seqdiag.mustache');
 const DIAGRAMS_TEMPLATE_PATH = path.join(__dirname, 'templates/diagrams.mustache');
+const STACKCOLLAPSE_TEMPLATE_PATH = path.join(__dirname, 'templates/stackcollapse.mustache');
+
 const OUT_SEQ_DESC_FILE = 'seqdiag.desc';
 const OUT_SEQ_DIAGRAMS_DESC_FILE = 'diagrams.desc';
+const OUT_SEQ_STACKCOLLAPSE_DESC_FILE = 'stackcollapse.desc';
+
 const OUT_SEQ_PNG_FILE = 'seqdiag.png';
 const OUT_SEQ_SVG_FILE = 'diagrams.svg';
+const OUT_SEQ_FLAMEGRAPH_FILE = 'flamegraph.svg';
+
 const OUT_SEQ_JSON_FILE = 'seqdiag.json';
 const OUT_SEQ_DIAGRAMS_JSON_FILE = 'diagrams.json';
+const OUT_SEQ_STACKCOLLAPSE_JSON_FILE = 'stackcollapse.json';
+
 const DEFAULT_JOB_PRIORITY = 300;
 const DEFAULT_DATEFOMRAT_PATTERN = 'm/d/yy h:m:s l';
 
@@ -74,9 +84,10 @@ let getDiffColor = function getDiffColor(previousColor) {
 }
 
 class CMDExecutor {
-	constructor(cmd, cwd) {
+	constructor(cmd, cwd, opts) {
 		this.cmd = cmd;
 		this.cwd = cwd;
+		this.opts = opts || {};
 	}
 
 	/**
@@ -94,7 +105,7 @@ class CMDExecutor {
 		let self = this;
 
 		try {
-			let runner = child_process.spawn(self.cmd, params, {'cwd': self.cwd || process.cwd(), stdio: 'pipe'});
+			let runner = child_process.spawn(self.cmd, params, {'cwd': self.cwd || process.cwd(), stdio: self.opts.stdio || 'pipe'});
 
 			let reval = '';
 			let fault = '';
@@ -103,10 +114,12 @@ class CMDExecutor {
 			  // debug('Run cmd "' + self.cmd + '" with params: ', params, ' and result: ', reval);
 				defer.resolve(reval);
 			});
-			
-			runner.stdout.on('data', function (data) {
-				reval += data;
-			});
+
+			if (runner.stdout) {
+				runner.stdout.on('data', function (data) {
+					reval += data;
+				});
+			}
 
 			runner.stderr.on('data', function (data) {
 				fault += data;
@@ -787,6 +800,7 @@ class Part {
 		this.firstParticipatePort = null;
 		this.lastParticipatePort = null;
 		this.seqCursor = 0;
+		this.stackCollapse = new StackCollapse(this.pid);
 	}
 
 	/**
@@ -873,8 +887,8 @@ class Part {
 			self.seqCursor ++;
 			inter.seq = self.seqCursor;
 	    self.interactions.push(inter);	
+			self.stackCollapse.append(inter);
 		}
-	
 	}
 
 	getLatestInteraction() {
@@ -970,6 +984,117 @@ class InteractionX extends Interaction {
 		json.seq = self.seq;
 
 		return json;
+	}
+}
+
+class Stack {
+	constructor(interactions, sid) {
+		this._isFrozen = false;
+		this.interactions = interactions || [];
+		this.goForward = true;
+		this.sid = sid;
+	}
+
+	setSid(sid) {
+   this.sid = sid;	
+	}
+
+	dump() {
+		let self = this;
+		let reval = {sid: self.sid, interactions: []};
+		self.interactions.forEach(function(i) {
+			reval.interactions.push(i.toJSONX());
+		});
+		return reval;
+	}
+}
+
+class StackCollapse {
+	constructor(pid) {
+		this.stacks= []; 
+		this.pid = pid;
+	}
+
+	getCurrentStack() {
+		const self = this;
+		if (self.stacks.length === 0) {
+			let stack = new Stack();
+			self.stacks.push(stack);
+		}
+
+		let currStack = self.stacks[self.stacks.length - 1];
+		currStack.setSid(self.pid + '-' + (self.stacks.length-1));
+		return currStack;
+	}
+
+	append(interaction) {
+		const self = this;
+
+		if (interaction.isRequest()) {
+			self._push(interaction);
+		} else {
+			self._pop(interaction);
+		}
+	}
+
+	_push(interaction) {
+		const self = this;
+		let currentStack = self.getCurrentStack();
+
+		if (currentStack.goForward) {
+			currentStack.interactions.push(interaction);
+			return;
+		}
+
+		currentStack._isFrozen = true;
+
+		let uncompletedCount = 0;
+		currentStack.interactions.some(function(inter) {
+			if (inter._isCompleted) {
+		     return true;	
+			}
+			uncompletedCount ++;
+		});
+
+		let respinStack = null;
+		if (0 === uncompletedCount) {
+	    respinStack = new Stack();	
+		} else {
+			let uncompletedInteractions = [];
+
+			for (let i = 0; i < uncompletedCount; i++) {
+				uncompletedInteractions.push(currentStack.interactions[i]);
+			}
+			respinStack = new Stack(uncompletedInteractions);
+		}
+		respinStack.interactions.push(interaction);
+		self.stacks.push(respinStack);
+	}
+
+	_pop(interaction) {
+		const self = this;
+		let currentStack = self.getCurrentStack();
+		currentStack.goForward = false;
+		let nextUnpaired = currentStack.interactions.length - 1;
+
+		while (nextUnpaired > 0 && currentStack.interactions[nextUnpaired]._isCompleted) {
+	   nextUnpaired --;	
+		}
+
+		if (nextUnpaired === -1 || ! interaction.isPaired(currentStack.interactions[nextUnpaired])) {
+			console.error('Unmatched response interaction: ', interaction, currentStack.interactions[nextUnpaired]);
+			return;
+		}
+		currentStack.interactions[nextUnpaired]._isCompleted = true;
+	}
+
+	dump() {
+		const self = this;
+		let reval = {pid: self.pid, stacks: []};
+		self.stacks.forEach(function(s) {
+	    reval.stacks.push(s.dump());	
+		});
+		return reval;
 	}
 }
 
@@ -1148,6 +1273,16 @@ class LineProcessor{
 	    parts: parts
 		};
 	} 
+
+	dumpStackCollapse() {
+		let self = this;
+		let reval = {parts: []};	
+		self.parts.forEach(function(p) {
+			reval.parts.push(p.stackCollapse.dump());
+		});
+
+		return reval;
+	}
 
 	failedLines() {
     return this.failed;	
@@ -1667,6 +1802,54 @@ class DiagramsGenerator extends BaseTask {
 	}
 }
 
+class FlameGraphGenerator extends BaseTask {
+	constructor(context) {
+    super(context);	
+	}
+	
+	undoAsync(done) {
+		done();
+	}
+
+  doAsync(done) {
+		const self = this;
+		const conf = self.context.conf;
+
+		const processor = self.context.processor;
+		const jsonFile = path.join(conf.outdir, OUT_SEQ_STACKCOLLAPSE_JSON_FILE);
+		const descFile = path.join(conf.outdir, OUT_SEQ_STACKCOLLAPSE_DESC_FILE);
+		const tempalte = fs.readFileSync(STACKCOLLAPSE_TEMPLATE_PATH, 'utf8');	
+		const svgFile = path.join(conf.outdir, OUT_SEQ_FLAMEGRAPH_FILE);
+
+		fs.writeFileSync(jsonFile, JSON.stringify(processor.dumpStackCollapse()), 'utf8');
+		let reval = Mustache.render(tempalte, processor.dumpStackCollapse());
+		fs.writeFileSync(descFile, reval, 'utf8');
+		
+		if (conf.textual) {
+	    done();
+			return reval;
+		}
+
+		let out = fs.openSync(svgFile, 'a');
+		let opts = {
+	   stdio: ['pipe', out, 'pipe']
+		};
+		
+		let flamegraph_cmd = new CMDExecutor(FLAMEGRAPH_CMD_LAUNCHER, null, opts);
+		let params = [FLAMEGRAPH_CMD, descFile];
+
+		return flamegraph_cmd.exec(params).then(function(output) {
+			debug('Run seqdiag command,  params:\n', params, '\n output:\n', '"' + output + '"');
+		  fs.closeSync(out);	
+			done();
+			return reval;
+		}).fail(function(error) {
+	   console.error('Failed to run seqdiag command, due to ', error); 	
+			done(error);
+		});
+
+	}
+}
 //=========================================================
 //                   Main 
 //=========================================================
@@ -1767,6 +1950,7 @@ logs.forEach(function(log) {
 
 tm.addTask(new SeqDiagGenerator(context));
 tm.addTask(new DiagramsGenerator(context));
+tm.addTask(new FlameGraphGenerator(context));
 
 tm.processAsync(context, function(error, result) {
 	console.log('DONE');
