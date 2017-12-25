@@ -801,7 +801,7 @@ class Part {
 		this.lastParticipatePort = null;
 		this.seqCursor = 0;
 		this.reqSeqCursor = 0;
-		this.stackCollapse = new StackCollapse(this.pid);
+		this.stackCollapse = new StackCollapse(this);
 	}
 
 	/**
@@ -914,6 +914,10 @@ class Part {
     this.lastParticipatePort= port;	
 	}
 
+	getReqCount() {
+    return this.reqSeqCursor;	
+	}
+
 	toJSON() {
 		let self = this;
 		let images = [];
@@ -1022,9 +1026,10 @@ class Stack {
 }
 
 class StackCollapse {
-	constructor(pid) {
+	constructor(part) {
 		this.stacks= []; 
-		this.pid = pid;
+		this.pid = part.pid;
+		this.part = part;
 	}
 
 	getCurrentStack() {
@@ -1102,11 +1107,7 @@ class StackCollapse {
 
 	_totalReqCount() {
     const self = this;
-		let count = 0;
-		self.stacks.forEach(function(s) {
-			count = count + s.interactions.length;
-		});
-		return count;
+		return self.part.getReqCount();
 	}
 
 	dump() {
