@@ -18,8 +18,7 @@ It supports exectuable ELF, static-lib, normal linker based  shared-lib and dyna
 
 The sample is just used to demonstrate the usages of the tool. To make the sample cover mores situations, e.g: executable ELF, static-lib, and two kind of shared-libs, I am trying to split the sample into various modules with different lib types, this actually does not make any sense to a real-life program.
 
-![Sample Components](./examples/docs/example-design.png)
-Format: ![Alt Text](url)
+![Sample Components](./examples/docs/example-design.jpeg)
 
 
 ## How to run
@@ -41,15 +40,12 @@ make run-debug
 ### FlameGraph (default)
 
 ![FlameGraph Example](./examples/docs/flamegraph.svg)
-Format: ![Alt Text](url)
 
 ### Seqdiag
 
 ![Seqdiag Example](./examples/docs/seqdiag.png)
-Format: ![Alt Text](url)
 
 
 ### Diagrams 
 
 ![Diagrams Example](./examples/docs/diagrams.svg)
-Format: ![Alt Text](url)
