@@ -1009,11 +1009,13 @@ class InteractionX extends Interaction {
 }
 
 class Stack {
-	constructor(interactions, sid) {
+	constructor(interactions, opts) {
 		this._isFrozen = false;
 		this.interactions = interactions || [];
 		this.goForward = true;
-		this.sid = sid;
+		this.sid = opts.sid;
+		this.pid = opts.pid;
+		this.tid = opts.tid;
 	}
 
 	setSid(sid) {
@@ -1022,7 +1024,7 @@ class Stack {
 
 	dump(opts) {
 		let self = this;
-		let reval = {sid: self.sid, interactions: []};
+		let reval = {sid: self.sid, pid: self.pid, tid: self.tid, interactions: []};
 		self.interactions.forEach(function(i) {
 			reval.interactions.push(i.toJSONX(opts));
 		});
@@ -1032,20 +1034,28 @@ class Stack {
 
 class StackCollapse {
 	constructor(part) {
-		this.stacks= []; 
+		/**
+		 * {
+		 *   tid: []// stacks
+		 * }
+		 */
+		this.stacks= {};  
 		this.pid = part.pid;
 		this.part = part;
 	}
 
-	getCurrentStack() {
+	getCurrentStack(tid) {
 		const self = this;
-		if (self.stacks.length === 0) {
-			let stack = new Stack();
-			self.stacks.push(stack);
+		if (! self.stacks[tid] || self.stacks[tid].length === 0 ) {
+			let stack = new Stack(null, {
+		    pid: self.pid,
+				tid: tid
+			});
+			self.stacks[tid] = [stack];
 		}
 
-		let currStack = self.stacks[self.stacks.length - 1];
-		currStack.setSid(self.pid + '-' + (self.stacks.length-1));
+		let currStack = self.stacks[tid][self.stacks[tid].length - 1];
+		currStack.setSid('pid' + self.pid + '-tid' + tid + '-'  + (self.stacks[tid].length-1));
 		return currStack;
 	}
 
@@ -1061,7 +1071,8 @@ class StackCollapse {
 
 	_push(interaction) {
 		const self = this;
-		let currentStack = self.getCurrentStack();
+		const tid = interaction.tid;
+		let currentStack = self.getCurrentStack(tid);
 
 		if (currentStack.goForward) {
 			currentStack.interactions.push(interaction);
@@ -1080,22 +1091,24 @@ class StackCollapse {
 
 		let respinStack = null;
 		if (0 === uncompletedCount) {
-	    respinStack = new Stack();	
+	    respinStack = new Stack(null, {pid: self.pid, tid: tid});	
 		} else {
 			let uncompletedInteractions = [];
 
 			for (let i = 0; i < uncompletedCount; i++) {
 				uncompletedInteractions.push(currentStack.interactions[i]);
 			}
-			respinStack = new Stack(uncompletedInteractions);
+			respinStack = new Stack(uncompletedInteractions, {pid: self.pid, tid: tid});
 		}
 		respinStack.interactions.push(interaction);
-		self.stacks.push(respinStack);
+		self.stacks[tid].push(respinStack);
 	}
 
 	_pop(interaction) {
 		const self = this;
-		let currentStack = self.getCurrentStack();
+		const tid = interaction.tid;
+
+		let currentStack = self.getCurrentStack(tid);
 		currentStack.goForward = false;
 		let nextUnpaired = currentStack.interactions.length - 1;
 
@@ -1124,9 +1137,13 @@ class StackCollapse {
 	    reqSeqPrefix = reqSeqPrefix + '0';	
 		}
 
-		self.stacks.forEach(function(s) {
-	    reval.stacks.push(s.dump({reqSeqPrefix: reqSeqPrefix}));	
+		Object.keys(self.stacks).forEach(function(k) {
+			let stacksPerThread = self.stacks[k]; 
+			stacksPerThread.forEach(function(s) {
+				reval.stacks.push(s.dump({reqSeqPrefix: reqSeqPrefix}));	
+			});
 		});
+
 		return reval;
 	}
 }
