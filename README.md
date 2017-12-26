@@ -8,7 +8,7 @@ Notable, turning on the func-trace will introduce significant performance impact
 
 ## Prerequisite
 
-- Linux OS
+- Linux OS (Tested on Ubuntu variants)
 
 - Have `addr2line` command installed on your system
 
