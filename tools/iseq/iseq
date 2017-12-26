@@ -1863,7 +1863,7 @@ class FlameGraphGenerator extends BaseTask {
 		};
 		
 		let flamegraph_cmd = new CMDExecutor(FLAMEGRAPH_CMD_LAUNCHER, null, opts);
-		let params = [FLAMEGRAPH_CMD, descFile];
+		let params = [FLAMEGRAPH_CMD, '--countname="Func-Trace"',  descFile];
 
 		return flamegraph_cmd.exec(params).then(function(output) {
 			debug('Run seqdiag command,  params:\n', params, '\n output:\n', '"' + output + '"');
