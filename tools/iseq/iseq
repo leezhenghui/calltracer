@@ -38,7 +38,7 @@ const DIAGRAMS_CMD_LAUNCHER = '/usr/local/bin/node';
 const DIAGRAMS_CMD = 'diagrams';
 const DIAGRAMS_CMD_CWD = __dirname;
 const FLAMEGRAPH_CMD_LAUNCHER = '/usr/bin/perl';
-const FLAMEGRAPH_CMD = path.join(__dirname, 'tools/FlameGraph', 'flamegraph.pl');
+const FLAMEGRAPH_CMD = path.join(__dirname, 'deps/FlameGraph', 'flamegraph.pl');
 
 const DEFAULT_NUMBER_RADIX = 16;
 

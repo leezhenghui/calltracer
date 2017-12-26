@@ -3,4 +3,7 @@
 	url = https://chromium.googlesource.com/external/gyp
 [submodule "examples/deps/simplelogger"]
 	path = examples/deps/simplelogger
-	url = https://github.com/ntpeters/SimpleLogger.git
+	url = git@github.com:leezhenghui/SimpleLogger.git 
+[submodule "tools/iseq/deps/FlameGraph"]
+	path = tools/iseq/deps/FlameGraph
+	url = https://github.com/brendangregg/FlameGraph.git
