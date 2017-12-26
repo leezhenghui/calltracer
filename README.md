@@ -2,9 +2,7 @@
 
 `CallTracer` is an instrument tool, which is able to be linked to a C/C++ program via shared lib, then record the program call stack history, as well as show up the call stack via mutiples vitualization ways, including: seqdiag, diagrams and flamegraph. 
 
-It provide a easy/friently way to for native program debugging or diving into a program to understand how it work under the hood.  
-
-It supports exectuable ELF, static-lib, normal linker based  shared-lib and dynamic linker based shared-lib.
+It supports exectuable ELF, static libraries, shared libraries and dynamic-loading libraries. The primary goal for this tool is to provide a easy/firendly way for native(C/C++) program debugging. In the meanwhile, it is also a efficent instrument to to help programmer taking a closer look at a overall of large program and firgure out how the program work in the details.  instead of via step-by-step debuger. Notable, turn on the trace will introduce significant performance impact,  please avoid using it on a production environment. 
 
 ## Prerequisite
 
@@ -34,6 +32,13 @@ git submodule update --init
 make clean
 make 
 make run-debug 
+
+```
+
+Using below command to conver the trace log into a visualizer view:
+
+```
+  ./tools/iseq/iseq
 
 ```
 
