@@ -996,6 +996,11 @@ class InteractionX extends Interaction {
 		let timestamp = new Date(parseInt(self.getTimestamp()));
 		timestamp = df(timestamp, DEFAULT_DATEFOMRAT_PATTERN);
 		json.timestamp = timestamp;
+		if (self.endTimestamp) {
+			let endTimestamp = new Date(parseInt(self.endTimestamp));
+		  endTimestamp = df(endTimestamp, DEFAULT_DATEFOMRAT_PATTERN);
+			json.endTimestamp = endTimestamp;
+		}
 		json.seq = seq;;
 		json.reqSeq = reqSeq;
 
@@ -1103,6 +1108,7 @@ class StackCollapse {
 			return;
 		}
 		currentStack.interactions[nextUnpaired]._isCompleted = true;
+		currentStack.interactions[nextUnpaired].endTimestamp = interaction.timestamp;
 	}
 
 	_totalReqCount() {
@@ -1857,7 +1863,7 @@ class FlameGraphGenerator extends BaseTask {
 			return reval;
 		}
 
-		let out = fs.openSync(svgFile, 'a');
+		let out = fs.openSync(svgFile, 'w+');
 		let opts = {
 	   stdio: ['pipe', out, 'pipe']
 		};

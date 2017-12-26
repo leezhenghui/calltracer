@@ -1,5 +1,5 @@
 {{#parts}}
 {{#stacks}}
-pid-{{&pid}};{{#interactions}}[{{&reqSeq}}] {{&sFunc}}({{&sImg}}:{{&sCode}}:<{{&sLine}}>);[{{&reqSeq}}] {{&tFunc}}({{&tImg}}:{{&tCode}}:<{{&tLine}}>);{{/interactions}} 1
+pid-{{&pid}};{{#interactions}}[{{&reqSeq}}] {{&sFunc}}({{&sImg}}:{{&sCode}}:<{{&sLine}}> tid={{&tid}} startTime={{&timestamp}} endTime:{{&endTimestamp}});[{{&reqSeq}}] {{&tFunc}}({{&tImg}}:{{&tCode}}:<{{&tLine}}> tid={{&tid}} startTime={{&timestamp}} endTime={{&endTimestamp}});{{/interactions}} 1
 {{/stacks}}
 {{/parts}}
