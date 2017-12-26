@@ -10,9 +10,11 @@ It supports exectuable ELF, static-lib, normal linker based  shared-lib and dyna
 
 - Linux OS
 
-- Have addr2line command installed on your system
+- Have `addr2line` command installed on your system
 
-- Have node.js runtime on your environment
+- Have `node.js` runtime on your environment
+
+- Have `seqdiag` command installed if you want to generate seqdiag style sequencing diagram
 
 ## Examples
 
