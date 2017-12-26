@@ -974,7 +974,7 @@ class InteractionX extends Interaction {
 		let self = this;
 		let seq = self.seq;
 		let reqSeq = self.reqSeq;
-		if (opts.reqSeqPrefix) {
+		if (opts && opts.reqSeqPrefix) {
 			reqSeq = opts.reqSeqPrefix + reqSeq;
 			reqSeq = reqSeq.substr(reqSeq.length - opts.reqSeqPrefix.length);
 		}
