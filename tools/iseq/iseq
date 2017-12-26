@@ -1912,7 +1912,7 @@ program
 	.option('-o, --outdir [outdir]', 'Output directory, default to current working directory')
 	.option('-l, --limit [limit]', 'Limit count of the interactions, default is unlimited')
 	.option('-s, --skip [skip]', 'Skip parsing of the interactions with specified count, default is 0')
-	.option('-v, --visualizer [visualizer]', 'The visaulizer used to present the call stack, "framegraph", "seqdiag" and "diagrams" are supported,  default is "framegraph"')
+	.option('-v, --visualizer [visualizer]', 'The visaulizer used to present the call stack, "framegraph", "seqdiag" and "diagrams" are supported,  default is "framegraph", "all" means generate all supported views')
 	.option('-t, --textual [textual]', 'Only generate textual description, does not generate png, default is false')
 	.option('-f, --fixlibpath [fixlibpath]', 'Specify a fixed lib path in case of the machine of programming running is not same as the iseq processing, default is null')
 	.parse(process.argv);
@@ -1980,6 +1980,7 @@ logs.forEach(function(logfile) {
 	console.log('==>  LIMIT: "' + conf.limit+ '"');
 	console.log('==>  SKIP: ' + conf.skip);
 	console.log('==>  TEXTUAL: ' + conf.textual);
+	console.log('==>  VISUALIZER: ' + conf.visualizer);
 });
 
 console.log('*******************************************************\n\n');
@@ -2000,15 +2001,15 @@ logs.forEach(function(log) {
 	tm.addTask(seqLogfilePT);
 });
 
-if ('seqdiag' === conf.visualizer.toLowerCase()) {
+if ('all' === conf.visualizer.toLowerCase() || 'seqdiag' === conf.visualizer.toLowerCase()) {
 	tm.addTask(new SeqDiagGenerator(context));
 }
 
-if ('diagrams' === conf.visualizer.toLowerCase()) {
+if ('all' === conf.visualizer.toLowerCase() || 'diagrams' === conf.visualizer.toLowerCase()) {
 	tm.addTask(new DiagramsGenerator(context));
 }
 
-if ('flamegraph' === conf.visualizer.toLowerCase()) {
+if ('all' === conf.visualizer.toLowerCase() || 'flamegraph' === conf.visualizer.toLowerCase()) {
 	tm.addTask(new FlameGraphGenerator(context));
 }
 
