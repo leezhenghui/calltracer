@@ -48,13 +48,36 @@ Using below command to conver the trace log into a visualizer view:
 
 ### FlameGraph (default)
 
-![FlameGraph Example](./docs/flamegraph.svg)
+![FlameGraph Example](./docs/example-flamegraph.svg)
 
 ### Seqdiag
 
-![Seqdiag Example](./docs/seqdiag.png)
+![Seqdiag Example](./docs/example.png)
 
 
 ### Diagrams 
 
-![Diagrams Example](./docs/diagrams.svg)
+![Diagrams Example](./docs/example.svg)
+
+## Waf
+
+A WAF script is provided here, which is to enable the tool on a program which using waf compiler framework, e.g: the earlier of node.js and node.js bindings implements. Here is some example flamegraph images, which I was using for node v0.1.15(a baby phase node.js impl which still using waf as compiler framework, simple extension design, and event-loop still based on libev and libeio, and  also, this version node.js is the first edition providing the programming API docs) implementation debugging. As the trace is huge, I generate these diagrams by cutting down some V8 traces.
+
+### Node.js v0.1.15 Init
+
+![Node.js v0.1.15 Init](./docs/early-node-init.svg)
+
+
+### Node.js v0.1.15 HelloWorld Async-Binding 
+
+![Node.js v0.1.15 Init](./docs/helloworld-async-binding.svg)
+
+
+### Node.js v0.1.15 HelloWorld Sync-Binding 
+
+![Node.js v0.1.15 Init](./docs/helloworld-sync-binding.svg)
+
+### Node.js v0.1.15 HelloWorld JS Http Server 
+
+![Node.js v0.1.15 Init](./docs/helloworld-js-http-server.svg)
+
