@@ -2,9 +2,6 @@ out
 *.swp
 *.swo
 *.log
-**/*.png
 **/node_modules/
 package-lock.json
-out.json
-out.seqdiag
 
