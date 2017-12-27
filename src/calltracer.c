@@ -37,7 +37,7 @@
 #define FUNC_TRACE_SECTION_SEPARATOR "=== FUNC TRACE ==="
 #define FUNC_TRACE_HEADER "   timestamp    gid       ppid     pid      tid     dir      caller      callee"
 
-static pid_t tid, pid, ppid; 
+static pid_t pid, ppid; 
 static gid_t gid;
 static char logFile[255] = DEFAULT_LOG_FILE;    // Default log file name
 static int log;    
@@ -101,6 +101,7 @@ static void func_trace(const void *callee, const void *caller, const unsigned in
 		isHeaderPrinted = 1;
 	}
 
+	pid_t tid;
 #ifdef SYS_gettid
 	if ((tid = syscall(SYS_gettid)) < 0) {
 		perror("Failed to gettid!");
