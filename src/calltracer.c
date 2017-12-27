@@ -107,7 +107,7 @@ static void func_trace(const void *callee, const void *caller, const unsigned in
 	}
 #endif
 
-	long long timestamp = get_system_time();
+	unsigned long long timestamp = get_system_time();
 
 	char* call_dirction_tag;
 	if (isEntry) {
