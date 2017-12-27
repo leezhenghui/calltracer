@@ -52,12 +52,13 @@ Using below command to conver the trace log into a visualizer view:
 
 ### Seqdiag
 
-<img src="./docs/example.png" width="800" height="300">
+<img src="./docs/example.png" width="800" height="500">
 
 
 ### Diagrams 
 
-![Diagrams Example](./docs/example.svg){:height="250px" width="250px"}
+<img src="./docs/example.svg" width="800" height="500">
+
 
 ## Waf
 
@@ -70,14 +71,14 @@ A WAF script is provided in this tool, which aim to enable the tool on a program
 
 ### Node.js v0.1.15 HelloWorld Async-Binding 
 
-![Node.js v0.1.15 Init](./docs/helloworld-async-binding.png)
+<img src="./docs/helloworld-async-binding.png" width="800" height="400">
 
 
 ### Node.js v0.1.15 HelloWorld Sync-Binding 
 
-![Node.js v0.1.15 Init](./docs/helloworld-sync-binding.png)
+<img src="./docs/helloworld-sync-binding.png" width="800" height="400">
 
 ### Node.js v0.1.15 HelloWorld JS Http Server 
 
-![Node.js v0.1.15 Init](./docs/helloworld-js-http-server.png)
+<img src="./docs/helloworld-js-http-server.png" width="800" height="400">
 
