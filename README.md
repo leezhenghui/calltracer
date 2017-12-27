@@ -71,14 +71,14 @@ A WAF script is provided in this tool, which aim to enable the tool on a program
 
 ### Node.js v0.1.15 HelloWorld Async-Binding 
 
-<img src="./docs/helloworld-async-binding.png" width="800" height="400">
+<img src="./docs/helloworld-async-binding.png" width="800" height="500">
 
 
 ### Node.js v0.1.15 HelloWorld Sync-Binding 
 
-<img src="./docs/helloworld-sync-binding.png" width="800" height="400">
+<img src="./docs/helloworld-sync-binding.png" width="800" height="600">
 
 ### Node.js v0.1.15 HelloWorld JS Http Server 
 
-<img src="./docs/helloworld-js-http-server.png" width="800" height="400">
+<img src="./docs/helloworld-js-http-server.png" width="800" height="600">
 
