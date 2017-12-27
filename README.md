@@ -52,7 +52,7 @@ Using below command to conver the trace log into a visualizer view:
 
 ### Seqdiag
 
-<img src="./docs/example.png" width="250">
+<img src="./docs/example.png" width="800" height="300">
 
 
 ### Diagrams 
