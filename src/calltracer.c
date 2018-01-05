@@ -27,7 +27,7 @@
 
 #include "./calltracer.h" 
 
-#define DEFAULT_LOG_FILE "cst.log"
+#define DEFAULT_LOG_FILE_PATTERN "cst-%d.log"
 #define FUNC_ENTRY_TAG ">"
 #define FUNC_EXIT_TAG "<"
 #define MEM_MAPS_FILE_PATTERN "/proc/%d/maps"
@@ -39,7 +39,6 @@
 
 static pid_t pid, ppid; 
 static gid_t gid;
-static char logFile[255] = DEFAULT_LOG_FILE;    // Default log file name
 static int log;    
 
 static unsigned int isTracerEnabled = 0;
@@ -86,7 +85,30 @@ static unsigned long get_system_time() {
 }
 
 __attribute__((no_instrument_function))
+static int is_forked() {
+	if (pid != getpid()) {
+		return 1;
+	}
+
+	return 0;
+}
+
+__attribute__((no_instrument_function))
+static void reset() {
+
+	if (log) {
+    close(log);
+	}
+
+	isHeaderPrinted = 0;
+	calltracer_start();
+}
+
+__attribute__((no_instrument_function))
 static void func_trace(const void *callee, const void *caller, const unsigned int isEntry) {
+	if (is_forked()){
+    reset();
+	}
 
 	if (! isTracerEnabled) {
     return;	
@@ -120,8 +142,6 @@ static void func_trace(const void *callee, const void *caller, const unsigned in
 	write(log, msg, strlen(msg));
 }
 
-
-
 void calltracer_start(void) {
 	printf("==> calltracer start\n");
 	char *is_tracer_enabled_env;
@@ -132,8 +152,6 @@ void calltracer_start(void) {
 	if (! isTracerEnabled) {
     return;	
 	}
-
-	log = open( logFile, O_CREAT | O_APPEND | O_RDWR, 0664 );
 
 	if ((ppid = getppid()) < 0 ) {
 		perror("Failed to getppid!");
@@ -146,6 +164,10 @@ void calltracer_start(void) {
 	if ((gid = getgid()) < 0 ) {
 		perror("Failed to getgid!");
 	}
+  
+	char logFile[255]; 
+	sprintf(logFile, DEFAULT_LOG_FILE_PATTERN, pid); 
+	log = open( logFile, O_CREAT | O_APPEND | O_RDWR, 0664 );
 
 	print_header();	
 	mem_layout();
@@ -162,6 +184,7 @@ void calltracer_stop(void) {
     close(log);	
 	}
 }
+
 
 void __cyg_profile_func_enter (void *callee,  void *caller)
 {
