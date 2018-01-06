@@ -38,3 +38,4 @@ all: ./build ./calltracer ./calltracer-debug ./example ./example-debug ./hellowo
 	@rm -rf ./out
 	@rm ./cst-*.log
 	@rm ./default.log
+	@rm ./core

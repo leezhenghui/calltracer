@@ -1930,8 +1930,6 @@ if (! program.args || program.args.length === 0) {
 	});
 }
 
-console.log("args: ", program.args);
-
 if (! program.args || program.args.length === 0) {
 	console.error(colors.red('[Error]: ') + 'Missing arguments of log file(s) to translate!'); 
 	program.outputHelp();
