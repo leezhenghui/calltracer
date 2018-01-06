@@ -15,7 +15,8 @@
 				],
 				'link_settings': {
 					'libraries': [
-						'-ldl'	
+						'-ldl',
+						'-pthread',
 						]	
 				},
 				'ldflags': [

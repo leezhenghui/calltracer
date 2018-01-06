@@ -64,6 +64,8 @@ const OUT_SEQ_STACKCOLLAPSE_JSON_FILE = 'stackcollapse.json';
 const DEFAULT_JOB_PRIORITY = 300;
 const DEFAULT_DATEFOMRAT_PATTERN = 'm/d/yy h:m:s l';
 
+const TRACE_FILE_PATTERN = /^cst-(:?[0-9]+)+\.log$/g
+
 //==========================================================
 //  Class/Utility Definitions
 //==========================================================
@@ -1918,6 +1920,19 @@ program
 	.parse(process.argv);
 
 if (! program.args || program.args.length === 0) {
+	let files = fs.readdirSync(process.cwd());
+	program.args = []
+	files.forEach(function(f) {
+		if (TRACE_FILE_PATTERN.test(f)) {
+			program.args.push(f);
+		}
+		TRACE_FILE_PATTERN.lastIndex = 0;
+	});
+}
+
+console.log("args: ", program.args);
+
+if (! program.args || program.args.length === 0) {
 	console.error(colors.red('[Error]: ') + 'Missing arguments of log file(s) to translate!'); 
 	program.outputHelp();
 	process.exit(1);
@@ -1973,16 +1988,12 @@ if ('string' === typeof conf.textual) {
 }
 
 console.log('\n*******************************************************');
-
-logs.forEach(function(logfile) {
-	console.log('==>  LOG FILE: "' + logfile + '"');
-	console.log('==>  OUT DIR: "' + conf.outdir+ '"');
-	console.log('==>  LIMIT: "' + conf.limit+ '"');
-	console.log('==>  SKIP: ' + conf.skip);
-	console.log('==>  TEXTUAL: ' + conf.textual);
-	console.log('==>  VISUALIZER: ' + conf.visualizer);
-});
-
+console.log('==>  LOGS: "' + logs+ '"');
+console.log('==>  OUT DIR: "' + conf.outdir+ '"');
+console.log('==>  LIMIT: "' + conf.limit+ '"');
+console.log('==>  SKIP: ' + conf.skip);
+console.log('==>  TEXTUAL: ' + conf.textual);
+console.log('==>  VISUALIZER: ' + conf.visualizer);
 console.log('*******************************************************\n\n');
 
 const context = {};

@@ -32,9 +32,9 @@ all: ./build ./calltracer ./calltracer-debug ./example ./example-debug ./hellowo
 
 ./run-debug:
 	@CALLTRACER_ENABLE=1 LD_DEBUG=files LD_PRELOAD=/home/lizh/playground/c-workspace/calltracer/out/build/Debug/lib.target/libcalltracer.so ./out/build/Debug/example
-	@DEBUG=* ./tools/iseq/iseq -s 0 -l unlimited -v all -o ./out ./cst.log > ./out/iseq.log 2> ./out/iseq.log
+	@DEBUG=* ./tools/iseq/iseq -s 0 -l unlimited -v all -o ./out > ./out/iseq.log 2> ./out/iseq.log
 
 ./clean:
 	@rm -rf ./out
-	@rm ./cst.log
+	@rm ./cst-*.log
 	@rm ./default.log
