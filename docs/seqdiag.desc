@@ -1,0 +1,180 @@
+seqdiag {
+
+	// Set edge metrix.
+	edge_length = 300;  // default value is 192
+	span_height = 80;  // default value is 40
+
+	// Set fontsize.
+	default_fontsize = 16;  // default value is 11
+
+	// Do not show activity line
+	activation = none;
+
+	// Numbering edges automaticaly
+	autonumber = True;
+
+	// Change note color
+	default_note_color = lightblue;
+
+	=== PID-4079 [1/7/18 9:1:40 069 ~ 1/7/18 9:1:40 070]  ===
+	"ld-2.19.so:dl-init.c" -> "libsimplelogger.so:simplog.c" [leftnote = "call_init()<dl-init.c:78>",  label = "Call: start()<simplog.c:61>; tid=4079; time=1/7/18 9:1:40 069", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "ld-2.19.so:dl-init.c" [rightnote = "start()<simplog.c:61>",  label = "Return: call_init()<dl-init.c:78>; tid=4079; time=1/7/18 9:1:40 069", color = green]; 
+	"example:??" -> "example:example.c" [leftnote = "__libc_csu_init()<??:?>",  label = "Call: pre_main()<example.c:36>; tid=4079; time=1/7/18 9:1:40 069", color = orange]; 
+	"example:example.c" --> "example:??" [rightnote = "pre_main()<example.c:36>",  label = "Return: __libc_csu_init()<??:?>; tid=4079; time=1/7/18 9:1:40 069", color = orange]; 
+	"libc-2.19.so:libc-start.c" -> "example:example.c" [leftnote = "__libc_start_main()<libc-start.c:321>",  label = "Call: main()<example.c:57>; tid=4079; time=1/7/18 9:1:40 069", color = blue]; 
+	"libpthread-2.19.so:pthread_create.c" -> "example:example.c" [leftnote = "start_thread()<pthread_create.c:312>",  label = "Call: log()<example.c:45>; tid=4081; time=1/7/18 9:1:40 069", color = green]; 
+	"example:example.c" -> "example:svc_discover.c" [leftnote = "log()<example.c:48>",  label = "Call: get_handler()<svc_discover.c:79>; tid=4081; time=1/7/18 9:1:40 069", color = orange]; 
+	"example:svc_discover.c" -> "libsimplelogger.so:simplog.c" [leftnote = "get_handler()<svc_discover.c:82>",  label = "Call: writeLog()<simplog.c:96>; tid=4081; time=1/7/18 9:1:40 069", color = blue]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4081; time=1/7/18 9:1:40 069", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4081; time=1/7/18 9:1:40 069", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "example:svc_discover.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: get_handler()<svc_discover.c:82>; tid=4081; time=1/7/18 9:1:40 069", color = blue]; 
+	"example:svc_discover.c" -> "example:svc_discover.c" [leftnote = "get_handler()<svc_discover.c:85>",  label = "Call: load_lib()<svc_discover.c:40>; tid=4081; time=1/7/18 9:1:40 069", color = orange]; 
+	"ld-2.19.so:dl-init.c" -> "libhelloworld_en.so:hello_world_en.c" [leftnote = "call_init()<dl-init.c:78>",  label = "Call: start()<hello_world_en.c:27>; tid=4081; time=1/7/18 9:1:40 070", color = blue]; 
+	"libhelloworld_en.so:hello_world_en.c" -> "libsimplelogger.so:simplog.c" [leftnote = "start()<hello_world_en.c:28>",  label = "Call: writeLog()<simplog.c:96>; tid=4081; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4081; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4081; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_en.so:hello_world_en.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: start()<hello_world_en.c:28>; tid=4081; time=1/7/18 9:1:40 070", color = green]; 
+	"libhelloworld_en.so:hello_world_en.c" --> "ld-2.19.so:dl-init.c" [rightnote = "start()<hello_world_en.c:27>",  label = "Return: call_init()<dl-init.c:78>; tid=4081; time=1/7/18 9:1:40 070", color = blue]; 
+	"example:svc_discover.c" --> "example:svc_discover.c" [rightnote = "load_lib()<svc_discover.c:40>",  label = "Return: get_handler()<svc_discover.c:85>; tid=4081; time=1/7/18 9:1:40 070", color = orange]; 
+	"example:svc_discover.c" -> "libsimplelogger.so:simplog.c" [leftnote = "get_handler()<svc_discover.c:93>",  label = "Call: writeLog()<simplog.c:96>; tid=4081; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4081; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4081; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "example:svc_discover.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: get_handler()<svc_discover.c:93>; tid=4081; time=1/7/18 9:1:40 070", color = blue]; 
+	"example:svc_discover.c" --> "example:example.c" [rightnote = "get_handler()<svc_discover.c:79>",  label = "Return: log()<example.c:48>; tid=4081; time=1/7/18 9:1:40 070", color = orange]; 
+	"example:example.c" -> "libhelloworld_en.so:hello_world_en.c" [leftnote = "log()<example.c:52>",  label = "Call: sayHello()<hello_world_en.c:45>; tid=4081; time=1/7/18 9:1:40 070", color = green]; 
+	"libhelloworld_en.so:hello_world_en.c" -> "libsimplelogger.so:simplog.c" [leftnote = "sayHello()<hello_world_en.c:47>",  label = "Call: writeLog()<simplog.c:96>; tid=4081; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4081; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4081; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_en.so:hello_world_en.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: sayHello()<hello_world_en.c:47>; tid=4081; time=1/7/18 9:1:40 070", color = orange]; 
+	"libhelloworld_en.so:hello_world_en.c" -> "libsimplelogger.so:simplog.c" [leftnote = "sayHello()<hello_world_en.c:48>",  label = "Call: writeLog()<simplog.c:96>; tid=4081; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4081; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4081; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_en.so:hello_world_en.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: sayHello()<hello_world_en.c:48>; tid=4081; time=1/7/18 9:1:40 070", color = blue]; 
+	"libhelloworld_en.so:hello_world_en.c" --> "example:example.c" [rightnote = "sayHello()<hello_world_en.c:45>",  label = "Return: log()<example.c:52>; tid=4081; time=1/7/18 9:1:40 070", color = green]; 
+	"example:example.c" --> "libpthread-2.19.so:pthread_create.c" [rightnote = "log()<example.c:45>",  label = "Return: start_thread()<pthread_create.c:312>; tid=4081; time=1/7/18 9:1:40 070", color = green]; 
+	"libpthread-2.19.so:pthread_create.c" -> "example:example.c" [leftnote = "start_thread()<pthread_create.c:312>",  label = "Call: log()<example.c:45>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"example:example.c" -> "example:svc_discover.c" [leftnote = "log()<example.c:48>",  label = "Call: get_handler()<svc_discover.c:79>; tid=4082; time=1/7/18 9:1:40 070", color = green]; 
+	"example:svc_discover.c" -> "libsimplelogger.so:simplog.c" [leftnote = "get_handler()<svc_discover.c:82>",  label = "Call: writeLog()<simplog.c:96>; tid=4082; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" --> "example:svc_discover.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: get_handler()<svc_discover.c:82>; tid=4082; time=1/7/18 9:1:40 070", color = orange]; 
+	"example:svc_discover.c" -> "example:svc_discover.c" [leftnote = "get_handler()<svc_discover.c:85>",  label = "Call: load_lib()<svc_discover.c:40>; tid=4082; time=1/7/18 9:1:40 070", color = green]; 
+	"ld-2.19.so:dl-init.c" -> "libhelloworld_cn.so:hello_world_cn.c" [leftnote = "call_init()<dl-init.c:78>",  label = "Call: start()<hello_world_cn.c:27>; tid=4082; time=1/7/18 9:1:40 070", color = orange]; 
+	"libhelloworld_cn.so:hello_world_cn.c" -> "libsimplelogger.so:simplog.c" [leftnote = "start()<hello_world_cn.c:28>",  label = "Call: writeLog()<simplog.c:96>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_cn.so:hello_world_cn.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: start()<hello_world_cn.c:28>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libhelloworld_cn.so:hello_world_cn.c" --> "ld-2.19.so:dl-init.c" [rightnote = "start()<hello_world_cn.c:27>",  label = "Return: call_init()<dl-init.c:78>; tid=4082; time=1/7/18 9:1:40 070", color = orange]; 
+	"example:svc_discover.c" --> "example:svc_discover.c" [rightnote = "load_lib()<svc_discover.c:40>",  label = "Return: get_handler()<svc_discover.c:85>; tid=4082; time=1/7/18 9:1:40 070", color = green]; 
+	"example:svc_discover.c" -> "libsimplelogger.so:simplog.c" [leftnote = "get_handler()<svc_discover.c:93>",  label = "Call: writeLog()<simplog.c:96>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" --> "example:svc_discover.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: get_handler()<svc_discover.c:93>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"example:svc_discover.c" --> "example:example.c" [rightnote = "get_handler()<svc_discover.c:79>",  label = "Return: log()<example.c:48>; tid=4082; time=1/7/18 9:1:40 070", color = green]; 
+	"example:example.c" -> "libhelloworld_cn.so:hello_world_cn.c" [leftnote = "log()<example.c:52>",  label = "Call: sayHello()<hello_world_cn.c:42>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libhelloworld_cn.so:hello_world_cn.c" -> "libsimplelogger.so:simplog.c" [leftnote = "sayHello()<hello_world_cn.c:44>",  label = "Call: writeLog()<simplog.c:96>; tid=4082; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_cn.so:hello_world_cn.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: sayHello()<hello_world_cn.c:44>; tid=4082; time=1/7/18 9:1:40 070", color = green]; 
+	"libhelloworld_cn.so:hello_world_cn.c" -> "libsimplelogger.so:simplog.c" [leftnote = "sayHello()<hello_world_cn.c:45>",  label = "Call: writeLog()<simplog.c:96>; tid=4082; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_cn.so:hello_world_cn.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: sayHello()<hello_world_cn.c:45>; tid=4082; time=1/7/18 9:1:40 070", color = orange]; 
+	"libhelloworld_cn.so:hello_world_cn.c" --> "example:example.c" [rightnote = "sayHello()<hello_world_cn.c:42>",  label = "Return: log()<example.c:52>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"example:example.c" --> "libpthread-2.19.so:pthread_create.c" [rightnote = "log()<example.c:45>",  label = "Return: start_thread()<pthread_create.c:312>; tid=4082; time=1/7/18 9:1:40 070", color = blue]; 
+	"example:example.c" --> "libc-2.19.so:libc-start.c" [rightnote = "main()<example.c:57>",  label = "Return: __libc_start_main()<libc-start.c:321>; tid=4079; time=1/7/18 9:1:40 070", color = blue]; 
+	"ld-2.19.so:dl-fini.c" -> "example:example.c" [leftnote = "_dl_fini()<dl-fini.c:251>",  label = "Call: post_main()<example.c:41>; tid=4079; time=1/7/18 9:1:40 070", color = orange]; 
+	"example:example.c" --> "ld-2.19.so:dl-fini.c" [rightnote = "post_main()<example.c:41>",  label = "Return: _dl_fini()<dl-fini.c:251>; tid=4079; time=1/7/18 9:1:40 070", color = orange]; 
+	"ld-2.19.so:dl-fini.c" -> "libhelloworld_en.so:hello_world_en.c" [leftnote = "_dl_fini()<dl-fini.c:251>",  label = "Call: stop()<hello_world_en.c:33>; tid=4079; time=1/7/18 9:1:40 070", color = blue]; 
+	"libhelloworld_en.so:hello_world_en.c" -> "libsimplelogger.so:simplog.c" [leftnote = "stop()<hello_world_en.c:34>",  label = "Call: writeLog()<simplog.c:96>; tid=4079; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4079; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4079; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_en.so:hello_world_en.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: stop()<hello_world_en.c:34>; tid=4079; time=1/7/18 9:1:40 070", color = green]; 
+	"libhelloworld_en.so:hello_world_en.c" --> "ld-2.19.so:dl-fini.c" [rightnote = "stop()<hello_world_en.c:33>",  label = "Return: _dl_fini()<dl-fini.c:251>; tid=4079; time=1/7/18 9:1:40 070", color = blue]; 
+	"ld-2.19.so:dl-fini.c" -> "libhelloworld_cn.so:hello_world_cn.c" [leftnote = "_dl_fini()<dl-fini.c:251>",  label = "Call: stop()<hello_world_cn.c:32>; tid=4079; time=1/7/18 9:1:40 070", color = orange]; 
+	"libhelloworld_cn.so:hello_world_cn.c" -> "libsimplelogger.so:simplog.c" [leftnote = "stop()<hello_world_cn.c:33>",  label = "Call: writeLog()<simplog.c:96>; tid=4079; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4079; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4079; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_cn.so:hello_world_cn.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: stop()<hello_world_cn.c:33>; tid=4079; time=1/7/18 9:1:40 070", color = blue]; 
+	"libhelloworld_cn.so:hello_world_cn.c" --> "ld-2.19.so:dl-fini.c" [rightnote = "stop()<hello_world_cn.c:32>",  label = "Return: _dl_fini()<dl-fini.c:251>; tid=4079; time=1/7/18 9:1:40 070", color = orange]; 
+	"ld-2.19.so:dl-fini.c" -> "libsimplelogger.so:simplog.c" [leftnote = "_dl_fini()<dl-fini.c:251>",  label = "Call: stop()<simplog.c:67>; tid=4079; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "ld-2.19.so:dl-fini.c" [rightnote = "stop()<simplog.c:67>",  label = "Return: _dl_fini()<dl-fini.c:251>; tid=4079; time=1/7/18 9:1:40 070", color = green]; 
+	=== PID-4080 [1/7/18 9:1:40 070 ~ 1/7/18 9:1:40 070]  ===
+	"libpthread-2.19.so:pthread_create.c" -> "example:example.c" [leftnote = "start_thread()<pthread_create.c:312>",  label = "Call: log()<example.c:45>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"example:example.c" -> "example:svc_discover.c" [leftnote = "log()<example.c:48>",  label = "Call: get_handler()<svc_discover.c:79>; tid=4083; time=1/7/18 9:1:40 070", color = blue]; 
+	"example:svc_discover.c" -> "libsimplelogger.so:simplog.c" [leftnote = "get_handler()<svc_discover.c:82>",  label = "Call: writeLog()<simplog.c:96>; tid=4083; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "example:svc_discover.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: get_handler()<svc_discover.c:82>; tid=4083; time=1/7/18 9:1:40 070", color = green]; 
+	"example:svc_discover.c" -> "example:svc_discover.c" [leftnote = "get_handler()<svc_discover.c:85>",  label = "Call: load_lib()<svc_discover.c:40>; tid=4083; time=1/7/18 9:1:40 070", color = blue]; 
+	"ld-2.19.so:dl-init.c" -> "libhelloworld_en.so:hello_world_en.c" [leftnote = "call_init()<dl-init.c:78>",  label = "Call: start()<hello_world_en.c:27>; tid=4083; time=1/7/18 9:1:40 070", color = green]; 
+	"libhelloworld_en.so:hello_world_en.c" -> "libsimplelogger.so:simplog.c" [leftnote = "start()<hello_world_en.c:28>",  label = "Call: writeLog()<simplog.c:96>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_en.so:hello_world_en.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: start()<hello_world_en.c:28>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libhelloworld_en.so:hello_world_en.c" --> "ld-2.19.so:dl-init.c" [rightnote = "start()<hello_world_en.c:27>",  label = "Return: call_init()<dl-init.c:78>; tid=4083; time=1/7/18 9:1:40 070", color = green]; 
+	"example:svc_discover.c" --> "example:svc_discover.c" [rightnote = "load_lib()<svc_discover.c:40>",  label = "Return: get_handler()<svc_discover.c:85>; tid=4083; time=1/7/18 9:1:40 070", color = blue]; 
+	"example:svc_discover.c" -> "libsimplelogger.so:simplog.c" [leftnote = "get_handler()<svc_discover.c:93>",  label = "Call: writeLog()<simplog.c:96>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "example:svc_discover.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: get_handler()<svc_discover.c:93>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"example:svc_discover.c" --> "example:example.c" [rightnote = "get_handler()<svc_discover.c:79>",  label = "Return: log()<example.c:48>; tid=4083; time=1/7/18 9:1:40 070", color = blue]; 
+	"example:example.c" -> "libhelloworld_en.so:hello_world_en.c" [leftnote = "log()<example.c:52>",  label = "Call: sayHello()<hello_world_en.c:45>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libhelloworld_en.so:hello_world_en.c" -> "libsimplelogger.so:simplog.c" [leftnote = "sayHello()<hello_world_en.c:47>",  label = "Call: writeLog()<simplog.c:96>; tid=4083; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_en.so:hello_world_en.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: sayHello()<hello_world_en.c:47>; tid=4083; time=1/7/18 9:1:40 070", color = blue]; 
+	"libhelloworld_en.so:hello_world_en.c" -> "libsimplelogger.so:simplog.c" [leftnote = "sayHello()<hello_world_en.c:48>",  label = "Call: writeLog()<simplog.c:96>; tid=4083; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_en.so:hello_world_en.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: sayHello()<hello_world_en.c:48>; tid=4083; time=1/7/18 9:1:40 070", color = green]; 
+	"libhelloworld_en.so:hello_world_en.c" --> "example:example.c" [rightnote = "sayHello()<hello_world_en.c:45>",  label = "Return: log()<example.c:52>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"example:example.c" --> "libpthread-2.19.so:pthread_create.c" [rightnote = "log()<example.c:45>",  label = "Return: start_thread()<pthread_create.c:312>; tid=4083; time=1/7/18 9:1:40 070", color = orange]; 
+	"libpthread-2.19.so:pthread_create.c" -> "example:example.c" [leftnote = "start_thread()<pthread_create.c:312>",  label = "Call: log()<example.c:45>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"example:example.c" -> "example:svc_discover.c" [leftnote = "log()<example.c:48>",  label = "Call: get_handler()<svc_discover.c:79>; tid=4084; time=1/7/18 9:1:40 070", color = orange]; 
+	"example:svc_discover.c" -> "libsimplelogger.so:simplog.c" [leftnote = "get_handler()<svc_discover.c:82>",  label = "Call: writeLog()<simplog.c:96>; tid=4084; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "example:svc_discover.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: get_handler()<svc_discover.c:82>; tid=4084; time=1/7/18 9:1:40 070", color = blue]; 
+	"example:svc_discover.c" -> "example:svc_discover.c" [leftnote = "get_handler()<svc_discover.c:85>",  label = "Call: load_lib()<svc_discover.c:40>; tid=4084; time=1/7/18 9:1:40 070", color = orange]; 
+	"ld-2.19.so:dl-init.c" -> "libhelloworld_cn.so:hello_world_cn.c" [leftnote = "call_init()<dl-init.c:78>",  label = "Call: start()<hello_world_cn.c:27>; tid=4084; time=1/7/18 9:1:40 070", color = blue]; 
+	"libhelloworld_cn.so:hello_world_cn.c" -> "libsimplelogger.so:simplog.c" [leftnote = "start()<hello_world_cn.c:28>",  label = "Call: writeLog()<simplog.c:96>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_cn.so:hello_world_cn.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: start()<hello_world_cn.c:28>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libhelloworld_cn.so:hello_world_cn.c" --> "ld-2.19.so:dl-init.c" [rightnote = "start()<hello_world_cn.c:27>",  label = "Return: call_init()<dl-init.c:78>; tid=4084; time=1/7/18 9:1:40 070", color = blue]; 
+	"example:svc_discover.c" --> "example:svc_discover.c" [rightnote = "load_lib()<svc_discover.c:40>",  label = "Return: get_handler()<svc_discover.c:85>; tid=4084; time=1/7/18 9:1:40 070", color = orange]; 
+	"example:svc_discover.c" -> "libsimplelogger.so:simplog.c" [leftnote = "get_handler()<svc_discover.c:93>",  label = "Call: writeLog()<simplog.c:96>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "example:svc_discover.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: get_handler()<svc_discover.c:93>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"example:svc_discover.c" --> "example:example.c" [rightnote = "get_handler()<svc_discover.c:79>",  label = "Return: log()<example.c:48>; tid=4084; time=1/7/18 9:1:40 070", color = orange]; 
+	"example:example.c" -> "libhelloworld_cn.so:hello_world_cn.c" [leftnote = "log()<example.c:52>",  label = "Call: sayHello()<hello_world_cn.c:42>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libhelloworld_cn.so:hello_world_cn.c" -> "libsimplelogger.so:simplog.c" [leftnote = "sayHello()<hello_world_cn.c:44>",  label = "Call: writeLog()<simplog.c:96>; tid=4084; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_cn.so:hello_world_cn.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: sayHello()<hello_world_cn.c:44>; tid=4084; time=1/7/18 9:1:40 070", color = orange]; 
+	"libhelloworld_cn.so:hello_world_cn.c" -> "libsimplelogger.so:simplog.c" [leftnote = "sayHello()<hello_world_cn.c:45>",  label = "Call: writeLog()<simplog.c:96>; tid=4084; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_cn.so:hello_world_cn.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: sayHello()<hello_world_cn.c:45>; tid=4084; time=1/7/18 9:1:40 070", color = blue]; 
+	"libhelloworld_cn.so:hello_world_cn.c" --> "example:example.c" [rightnote = "sayHello()<hello_world_cn.c:42>",  label = "Return: log()<example.c:52>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"example:example.c" --> "libpthread-2.19.so:pthread_create.c" [rightnote = "log()<example.c:45>",  label = "Return: start_thread()<pthread_create.c:312>; tid=4084; time=1/7/18 9:1:40 070", color = green]; 
+	"example:example.c" --> "libc-2.19.so:libc-start.c" [rightnote = "main()<example.c:57>",  label = "Return: __libc_start_main()<libc-start.c:321>; tid=4080; time=1/7/18 9:1:40 070", color = red]; 
+	"ld-2.19.so:dl-fini.c" -> "example:example.c" [leftnote = "_dl_fini()<dl-fini.c:251>",  label = "Call: post_main()<example.c:41>; tid=4080; time=1/7/18 9:1:40 070", color = green]; 
+	"example:example.c" --> "ld-2.19.so:dl-fini.c" [rightnote = "post_main()<example.c:41>",  label = "Return: _dl_fini()<dl-fini.c:251>; tid=4080; time=1/7/18 9:1:40 070", color = green]; 
+	"ld-2.19.so:dl-fini.c" -> "libhelloworld_en.so:hello_world_en.c" [leftnote = "_dl_fini()<dl-fini.c:251>",  label = "Call: stop()<hello_world_en.c:33>; tid=4080; time=1/7/18 9:1:40 070", color = orange]; 
+	"libhelloworld_en.so:hello_world_en.c" -> "libsimplelogger.so:simplog.c" [leftnote = "stop()<hello_world_en.c:34>",  label = "Call: writeLog()<simplog.c:96>; tid=4080; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4080; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4080; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_en.so:hello_world_en.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: stop()<hello_world_en.c:34>; tid=4080; time=1/7/18 9:1:40 070", color = blue]; 
+	"libhelloworld_en.so:hello_world_en.c" --> "ld-2.19.so:dl-fini.c" [rightnote = "stop()<hello_world_en.c:33>",  label = "Return: _dl_fini()<dl-fini.c:251>; tid=4080; time=1/7/18 9:1:40 070", color = orange]; 
+	"ld-2.19.so:dl-fini.c" -> "libhelloworld_cn.so:hello_world_cn.c" [leftnote = "_dl_fini()<dl-fini.c:251>",  label = "Call: stop()<hello_world_cn.c:32>; tid=4080; time=1/7/18 9:1:40 070", color = green]; 
+	"libhelloworld_cn.so:hello_world_cn.c" -> "libsimplelogger.so:simplog.c" [leftnote = "stop()<hello_world_cn.c:33>",  label = "Call: writeLog()<simplog.c:96>; tid=4080; time=1/7/18 9:1:40 070", color = orange]; 
+	"libsimplelogger.so:simplog.c" -> "libsimplelogger.so:simplog.c" [leftnote = "writeLog()<simplog.c:115>",  label = "Call: getDateString()<simplog.c:583>; tid=4080; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libsimplelogger.so:simplog.c" [rightnote = "getDateString()<simplog.c:583>",  label = "Return: writeLog()<simplog.c:115>; tid=4080; time=1/7/18 9:1:40 070", color = green]; 
+	"libsimplelogger.so:simplog.c" --> "libhelloworld_cn.so:hello_world_cn.c" [rightnote = "writeLog()<simplog.c:96>",  label = "Return: stop()<hello_world_cn.c:33>; tid=4080; time=1/7/18 9:1:40 070", color = orange]; 
+	"libhelloworld_cn.so:hello_world_cn.c" --> "ld-2.19.so:dl-fini.c" [rightnote = "stop()<hello_world_cn.c:32>",  label = "Return: _dl_fini()<dl-fini.c:251>; tid=4080; time=1/7/18 9:1:40 070", color = green]; 
+	"ld-2.19.so:dl-fini.c" -> "libsimplelogger.so:simplog.c" [leftnote = "_dl_fini()<dl-fini.c:251>",  label = "Call: stop()<simplog.c:67>; tid=4080; time=1/7/18 9:1:40 070", color = blue]; 
+	"libsimplelogger.so:simplog.c" --> "ld-2.19.so:dl-fini.c" [rightnote = "stop()<simplog.c:67>",  label = "Return: _dl_fini()<dl-fini.c:251>; tid=4080; time=1/7/18 9:1:40 070", color = blue]; 
+}
