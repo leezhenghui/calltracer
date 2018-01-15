@@ -106,12 +106,11 @@ static void reset() {
 
 __attribute__((no_instrument_function))
 static void func_trace(const void *callee, const void *caller, const unsigned int isEntry) {
-	if (is_forked()){
-    reset();
-	}
-
 	if (! isTracerEnabled) {
     return;	
+	}
+	if (is_forked()){
+    reset();
 	}
 
 	char msg[2048];
@@ -143,7 +142,6 @@ static void func_trace(const void *callee, const void *caller, const unsigned in
 }
 
 void calltracer_start(void) {
-	printf("==> calltracer start\n");
 	char *is_tracer_enabled_env;
 	if ((is_tracer_enabled_env = getenv("CALLTRACER_ENABLE"))){
 		isTracerEnabled = atoi(is_tracer_enabled_env);
@@ -152,6 +150,7 @@ void calltracer_start(void) {
 	if (! isTracerEnabled) {
     return;	
 	}
+	printf("==> calltracer start\n");
 
 	if ((ppid = getppid()) < 0 ) {
 		perror("Failed to getppid!");
@@ -174,6 +173,9 @@ void calltracer_start(void) {
 }
 
 void calltracer_stop(void) {
+	if (! isTracerEnabled) {
+    return;	
+	}
 	printf("==> calltracer stop\n");
   // mem_layout in stop phase, as
 	// the shared lib may being loaded during execution time via
