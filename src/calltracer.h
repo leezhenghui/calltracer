@@ -11,7 +11,6 @@
  *       Compiler:  gcc
  *
  *         Author:  Zhenghui Lee (lizh), leezhenghui@gmail.com
- *   Organization:  ibm.com
  *
  * =====================================================================================
  */
