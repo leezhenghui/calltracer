@@ -1,8 +1,8 @@
 # CallTracer
 
-`CallTracer` is an instrument tool, which is able to be linked into a C/C++ program as a shared lib, then record the program call stack traces, as well an utility tool to convert the call stack into multiples vitualizater, including: [seqdiag](http://blockdiag.com/en/seqdiag/), [diagrams](https://github.com/francoislaberge/diagrams) and [flamegraph](https://github.com/brendangregg/FlameGraph). 
+`CallTracer` is an instrument toolkit, which can be linked into a C/C++ program as a shared lib, then record the program call stack traces, using the out-of-box utility command line tool to convert the call stack trace into various vitualizater, including: [seqdiag](http://blockdiag.com/en/seqdiag/), [diagrams](https://github.com/francoislaberge/diagrams) and [flamegraph](https://github.com/brendangregg/FlameGraph). 
 
-It supports exectuable ELF, static libraries, shared libraries and dynamic-loading libraries. The primary goal for this tool is to provide a easy/firendly way for native(C/C++) program debugging. In the meanwhile, it is also an efficent utility to help programmer taking a closer look at a large program and firgure out how the program work in the details, without need a step-by-step debugger. 
+It supports `exectuable ELF`, `static libraries`, `shared libraries` and `dynamic-loading libraries`. The primary goal for this tool is to provide a easy/firendly way for native(C/C++) program debugging. In practice, it also can act as an efficent utility tool to layout an overview of the program running details(function level call stack) in a straight-forward way.
 
 Notable, turning on the func-trace will introduce significant performance impact,  please avoid using it on a production environment. 
 
