@@ -1,12 +1,41 @@
 # CallTracer
 
-`CallTracer` is an instrument toolkit, which can be linked into a C/C++ program as a shared lib, then record the program call stack traces, using the out-of-box utility command line tool to convert the call stack trace into various vitualizater, including: [seqdiag](http://blockdiag.com/en/seqdiag/), [diagrams](https://github.com/francoislaberge/diagrams) and [flamegraph](https://github.com/brendangregg/FlameGraph). 
+[`CallTracer`](https://github.com/leezhenghui/calltracer) is an instrument toolkit and aimed to provide an easy way for native(C/C++) program debugging, in particular, it can work as an utility to record and layout the program execution details in various straight-forward representation ways.(e.g: sequencing diagram, flamegraph)
 
-It supports `exectuable ELF`, `static libraries`, `shared libraries` and `dynamic-loading libraries`. The primary goal for this tool is to provide a easy/firendly way for native(C/C++) program debugging. In practice, it also can act as an efficent utility tool to layout an overview of the program running details(function level call stack) in a straight-forward way.
+It is compiled as a shared lib and integrated into the C/C++ program to enable the tracer. Currently, it provides an user friendly integration for the builder `gyp` or `waf`, and use the out-of-box utility tool to convert the call stack into **file names** and **source code line**, finally be presented by a appropriate vitualizater, including: [seqdiag](http://blockdiag.com/en/seqdiag/), [diagrams](https://github.com/francoislaberge/diagrams) and [flamegraph](https://github.com/brendangregg/FlameGraph)(default). 
+
+## Features
+
+- Executable ELF (non-pie)
+
+- Static library
+
+- Dynamic linking library
+
+- Dynamic loading library
+
+- Tracing forked process
+
+- Multiple threads
+
+- Seqdiag
+
+- Diagrams
+
+- Flamegraph
+
+>
+> If you are familiar with [`flamegraph`](https://github.com/brendangregg/FlameGraph), you might know about it originally is used for sampling data and without an order guarantee. In the calltracer, the generated flamegraph are for tracer data, and we will ensure the call stack sequencing following the tracer generated order. 
 
 Notable, turning on the func-trace will introduce significant performance impact,  please avoid using it on a production environment. 
 
-## Prerequisite
+## TODO
+
+- Dynamic Tracer, enable/disable the tracer on-the-fly
+
+- `dlclose` 
+
+## Prerequisites for run the example
 
 - Linux OS (Tested on Ubuntu variants)
 
@@ -16,9 +45,9 @@ Notable, turning on the func-trace will introduce significant performance impact
 
 - Have `seqdiag` command installed if you want to generate seqdiag style sequencing diagram
 
-## Examples
+## Example
 
-The sample is just used to demonstrate the usages of the tool. To make the sample cover mores situations, e.g: executable ELF, static-lib, and two kind of shared-libs, I am trying to split the sample into various modules with different lib types, this actually does not make any sense to a real-life program.
+The sample is just used to demonstrate the usages of the tool. To make the sample cover mores situations, e.g: `executable ELF`, `static-lib`, `dynamic linking shared-lib`, `dynamic loading shared-lib`, `forked process` and `multiple-threads`, I am trying to split the sample into various modules with different lib types, this definitely does not make a sense in a real-life program.
 
 ![Sample Components](./docs/example-design.jpeg)
 
@@ -40,6 +69,8 @@ make run-debug
 Using below command to conver the trace log into a visualizer view:
 
 ```
+  cd ./tools/iseq/ 
+  npm install 
   ./tools/iseq/iseq
 
 ```
@@ -49,6 +80,10 @@ Using below command to conver the trace log into a visualizer view:
 ### FlameGraph (default)
 
 ![FlameGraph Example](./docs/example-flamegraph.svg)
+
+>
+> Open the original image and click(zoon in) the flame block you are interested in and get more detailed invocation information followed by that point, e.g: invocation seq, invocation occurs timestamp, file name and source code line. 
+
 
 ### Seqdiag
 
