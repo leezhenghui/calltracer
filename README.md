@@ -2,7 +2,7 @@
 
 [`CallTracer`](https://github.com/leezhenghui/calltracer) is an instrument toolkit and aimed to provide an easy way for native(C/C++) program debugging, in particular, it can work as an utility to record and layout the program execution details in various straight-forward representation ways.(e.g: sequencing diagram, flamegraph)
 
-It is compiled as a shared-lib and linked into a C/C++ program to enable the tracer. So far, it provides an user-friendly integration features for the program which is built upon `gyp` or `waf`, and also provides an out-of-box utility tool to convert the call stack into **file names** and **source code line**, finally be presented by an appropriate visualizer, including: [seqdiag](http://blockdiag.com/en/seqdiag/), [diagrams](https://github.com/francoislaberge/diagrams) and [flamegraph](https://github.com/brendangregg/FlameGraph)(default). 
+It is compiled as a shared-lib and linked into a C/C++ program to enable the tracer. So far, it provides an user-friendly integration features for the program which is built upon [`gyp`](https://gyp.gsrc.io/) or [`waf`](https://waf.io/), and also provides an out-of-box utility tool to convert the call stack into **file names** and **source code line**, finally be converted and presented by an appropriate visualizer, including: [seqdiag](http://blockdiag.com/en/seqdiag/), [diagrams](https://github.com/francoislaberge/diagrams) and [flamegraph](https://github.com/brendangregg/FlameGraph)(default). 
 
 ## Features
 
@@ -18,22 +18,24 @@ It is compiled as a shared-lib and linked into a C/C++ program to enable the tra
 
 - Multiple threads
 
+- Flamegraph
+
 - Seqdiag
 
 - Diagrams
 
-- Flamegraph
-
 >
-> If you are familiar with [`flamegraph`](https://github.com/brendangregg/FlameGraph), you might know about it originally is used for sampling data and without an order guarantee. In the calltracer, the generated flamegraph are for tracer data, and we will ensure the call stack sequencing following the tracer generated order. 
+> If you are familiar with [`flamegraph`](https://github.com/brendangregg/FlameGraph), you might know about it originally is used for sampling data without an order guarantee. In calltracer, the generated flamegraph are for tracer data, and we will ensure the call stack sequencing following the tracer generated order. 
 
 Notable, turning on the func-trace will introduce significant performance impact,  please avoid using it on a production environment. 
 
 ## TODO
 
-- Dynamic Tracer, enable/disable the tracer on-the-fly
+- Dynamic Tracer support, enable/disable the tracer on-the-fly
 
-- `dlclose` 
+- Support `dlclose` 
+
+- Code refine/refactor
 
 ## Prerequisites for run the example
 
