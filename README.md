@@ -51,7 +51,7 @@ Notable, turning on the func-trace will introduce significant performance impact
 
 The sample is just used to demonstrate the usages of the tool. To make the sample cover mores situations, e.g: `executable ELF`, `static-lib`, `dynamic linking shared-lib`, `dynamic loading shared-lib`, `forked process` and `multiple-threads`, I am trying to split the sample into various modules with different lib types, this definitely does not make a sense in a real-life program.
 
-![Sample Components](./docs/example-design.jpeg)
+![Sample Components](./docs/example-design.png)
 
 
 ## How to run
