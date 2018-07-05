@@ -17,6 +17,7 @@
 
 #include "hello_world.h"
 #include "../deps/simplelogger/simplog.h"
+#include "../../common.h"
 #include <stdio.h>
 
 static void start (void) __attribute__ ((constructor));
@@ -26,6 +27,10 @@ static void stop (void) __attribute__ ((destructor));
 static void start (void) 
 {
 	simplog.writeLog( SIMPLOG_DEBUG, "[module_start] hellow_world_cn");
+}
+
+void doSomething() {
+	printf("==> [doSomething] in hello_word_cn shared object\n");
 }
 
 static void stop (void) 
@@ -42,5 +47,6 @@ void sayHello ()
 {
 	simplog.writeLog( SIMPLOG_DEBUG, "hellow_world_cn sayHello [Enter]");
 	printf("   >>>   世界，你好   <<< \n");
+	doSomething();
 	simplog.writeLog( SIMPLOG_DEBUG, "hellow_world_cn sayHello [Exit]");
 }		/* -----  end of function sayHello  ----- */

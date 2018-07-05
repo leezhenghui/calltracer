@@ -23,6 +23,7 @@
 #include <pthread.h>
 
 #include  "./plugins/svc_discover.h"
+#include "./common.h"
 
 #define NUMT 2 
 
@@ -50,6 +51,10 @@ void log(const char* str) {
 	(*fn)();
 
 	return 0;
+}
+
+void doSomething() {
+	printf("==> [doSomething] in main executable\n");
 }
 
 // __attribute__((no_instrument_function))
@@ -83,6 +88,8 @@ int main(void)
  		error = pthread_join(tid[i], NULL);
  		fprintf(stderr, "Thread %d terminated\n", i);
  	}
+
+	doSomething();
 
 	printf("%s [Exit]\n", __func__);
 	return 0;
