@@ -53,7 +53,8 @@ void log(const char* str) {
 	return 0;
 }
 
-void doSomething() {
+ __attribute__ ((visibility ("hidden"))) void doSomething() {
+// void doSomething() {
 	printf("==> [doSomething] in main executable\n");
 }
 
