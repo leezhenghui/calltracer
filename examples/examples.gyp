@@ -108,6 +108,7 @@
 			  './deps/simplelogger',
 			],
 			'dependencies': [
+				'simplelogger',
 			],
 			'configurations': {
 				'Debug': {
@@ -134,6 +135,7 @@
 			  './deps/simplelogger',
 			],
 			'dependencies': [
+				'simplelogger',
 			],
 			'configurations': {
 				'Debug': {
