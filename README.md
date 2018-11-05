@@ -110,16 +110,23 @@ A WAF script is provided in this tool, which aim to enable the tool on a program
 
 <img src="./docs/helloworld-async-binding.png" width="800" height="500">
 
+Download the [orignal svg file](./docs/helloworld-async-binding.svg) for a detailed info via zoom-in/zoom-out. 
 
 ### Node.js v0.1.15 HelloWorld Sync-Binding 
 
 <img src="./docs/helloworld-sync-binding.png" width="800" height="600">
 
+Download the [orignal svg file](./docs/helloworld-sync-binding.svg) for a detailed info via zoom-in/zoom-out. 
+
 ### Node.js v0.1.15 HelloWorld JS Http Server 
 
 <img src="./docs/helloworld-js-http-server.png" width="800" height="600">
 
+Download the [orignal svg file](./docs/helloworld-js-http-server.svg) for a detailed info via zoom-in/zoom-out. 
+
 ### Node.js v0.1.15 HelloWorld FS  
 
 <img src="./docs/helloworld-js-fs.png" width="800" height="600">
+
+Download the [orignal svg file](./docs/helloworld-js-fs.svg) for a detailed info via zoom-in/zoom-out. 
 
