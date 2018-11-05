@@ -1866,6 +1866,7 @@ class FlameGraphGenerator extends BaseTask {
   doAsync(done) {
 		const self = this;
 		const conf = self.context.conf;
+		debug('Flamegraph generator Begin');
 
 		const processor = self.context.processor;
 		const jsonFile = path.join(conf.outdir, OUT_SEQ_STACKCOLLAPSE_JSON_FILE);
@@ -1873,8 +1874,11 @@ class FlameGraphGenerator extends BaseTask {
 		const tempalte = fs.readFileSync(STACKCOLLAPSE_TEMPLATE_PATH, 'utf8');	
 		const svgFile = path.join(conf.outdir, OUT_SEQ_FLAMEGRAPH_FILE);
 
+		debug('Writing json to: ', jsonFile);
 		fs.writeFileSync(jsonFile, JSON.stringify(processor.dumpStackCollapse()), 'utf8');
+		debug('Render to: ', tempalte);
 		let reval = Mustache.render(tempalte, processor.dumpStackCollapse());
+		debug('Writing desc to: ', descFile);
 		fs.writeFileSync(descFile, reval, 'utf8');
 		
 		if (conf.textual) {
@@ -1891,8 +1895,9 @@ class FlameGraphGenerator extends BaseTask {
 		let params = [FLAMEGRAPH_CMD, '--countname="Func-Trace"',  descFile];
 
 		return flamegraph_cmd.exec(params).then(function(output) {
-			debug('Run seqdiag command,  params:\n', params, '\n output:\n', '"' + output + '"');
+			debug('Run flamegraph generator command,  params:\n', params, '\n output:\n', '"' + output + '"');
 		  fs.closeSync(out);	
+			debug('Flamegraph generator End');
 			done();
 			return reval;
 		}).fail(function(error) {
